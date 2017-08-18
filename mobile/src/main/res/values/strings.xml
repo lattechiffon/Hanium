@@ -1,0 +1,63 @@
+<resources>
+
+    <!-- 기본 -->
+
+    <string name="app_name">낙상 인식 알리미</string>
+    <string name="app_version_code">1</string>
+    <string name="toast_exit">한 번 더 누르면 앱이 종료됩니다.</string>
+
+    <string name="activity_main_recent_data">최근 낙상 감지 기록</string>
+    <string name="activity_device_register">기기 등록</string>
+    <string name="activity_contacts">응급 알림 보호자 지정</string>
+    <string name="activity_emergency">낙상 응급 알림</string>
+    <string name="activity_settings">설정</string>
+
+    <string name="device_register_title">반갑습니다</string>
+    <string name="device_register_title2">당신의 이름을 알려주세요</string>
+    <string name="device_register_info">서비스를 이용하시려면 이용자의 기기 정보를 서버에 등록하여야 합니다.</string>
+    <string name="device_register_info2">이 과정을 완료하시면 기기 정보 등록을 허용하는 것으로 간주합니다.</string>
+    <string name="device_register_edit_text">이름을 입력해주세요</string>
+    <string name="device_register_button_register">등록하기</string>
+
+    <string name="emergency_title">낙상으로 인식되었습니다</string>
+    <string name="emergency_info">10초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
+    <string name="emergency_button_stop">중지하기</string>
+
+
+    <!-- 권한 -->
+
+    <string name="permission_dialog_title_access_fine_location">잠시 후 앱에서 요청하는 위치 데이터 접근 권한을 허용해주세요.</string>
+    <string name="permission_dialog_body_access_fine_location">낙상 발생 시 이용자의 위치 정보를 파악하기 위해서는 반드시 위치(GPS) 데이터 접근 권한이 필요합니다.</string>
+
+    <string name="permission_dialog_title_read_contacts">잠시 후 앱에서 요청하는 연락처 데이터 접근 권한을 허용해주세요.</string>
+    <string name="permission_dialog_body_read_contacts">낙상 발생 시 응급 알림을 받을 보호자를 선택하기 위해서는 반드시 연락처 데이터 접근 권한이 필요합니다.</string>
+
+    <string name="permission_dialog_title_deny">필수 접근 권한 거부</string>
+    <string name="permission_toast_allow_access_fine_location">위치 데이터 접근 권한을 허용하셨습니다.</string>
+    <string name="permission_toast_allow_read_contacts">위치 데이터 접근 권한을 허용하셨습니다.</string>
+
+
+    <!-- 설정 -->
+
+    <string name="action_settings">설정</string>
+
+    <string name="pref_header_modes">사용자 모드</string>
+    <string name="pref_title_user_mode">보호자 모드로 전환</string>
+    <string name="pref_description_user_mode">보호자 모드로 전환하면 낙상 인식을 더 이상 수행하지 않습니다.</string>
+
+    <string name="pref_header_notifications">알림</string>
+    <string name="pref_title_new_message_notifications">앱 푸시 수신</string>
+    <string name="pref_description_new_message_notifications">앱 푸시를 수신하게 되면 새로운 정보를 실시간으로 제공받을 수 있습니다.</string>
+    <string name="pref_title_ringtone">푸시 알림음</string>
+    <string name="pref_ringtone_silent">무음</string>
+    <string name="pref_title_vibrate">푸시 진동</string>
+    <string name="pref_title_recommend_notifications">앱 푸시 권장 안내</string>
+    <string name="pref_description_recommend_notifications">앱 푸시 수신이 거부 상태일 때 푸시 수신을 권장하는 안내를 제공받을 수 있습니다.</string>
+
+    <string name="pref_header_information">정보</string>
+    <string name="pref_app_version">앱 버전: v 0.1</string>
+    <string name="pref_developer">기획/개발: DoIT (세종대학교 컴퓨터공학과)</string>
+    <string name="pref_mentor">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
+    <string name="pref_project">2017 한이음 공모전 출품 앱</string>
+
+</resources>

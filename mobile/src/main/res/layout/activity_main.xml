@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sliding_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    sothree:umanoPanelHeight="60dp"
+    sothree:umanoShadowHeight="4dp">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/swipe_layout">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
+                android:paddingTop="10dp"
+                android:layout_margin="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:gravity="center"
+                    android:text="테스트 님 반갑습니다"
+                    android:textSize="20sp"
+                    android:padding="10dp"/>
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp">
+
+                <com.ramotion.foldingcell.FoldingCell
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/folding_cell"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    ​
+                    <FrameLayout
+                        android:id="@+id/cell_content_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorAccent"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:text="Hello World! - 1"
+                            android:layout_width="match_parent"
+                            android:layout_height="250dp"
+                            android:layout_marginTop="10dp"
+                            android:background="#FFFFFF"/>
+
+                    </FrameLayout>
+                    ​
+                    <FrameLayout
+                        android:id="@+id/cell_title_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorAccent">
+
+                        <TextView
+                            android:text="Hello World! - 2"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:layout_marginLeft="10dp"
+                            android:background="#FFFFFF" />
+
+                    </FrameLayout>​
+
+                </com.ramotion.foldingcell.FoldingCell>
+
+            </FrameLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="새로운 연락처 등록"
+                android:id="@+id/newContactsButton"
+                android:textSize="16sp"
+                android:layout_marginRight="6dp"
+                android:layout_marginLeft="6dp"/>
+        </LinearLayout>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/colorAccent"
+            android:gravity="center"
+            android:text="지금까지 낙상이 3번 감지되었습니다."
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="The Awesome Sliding Up Panel"
+            android:textSize="25sp" />
+    </LinearLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

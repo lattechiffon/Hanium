@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lattechiffon.hanium.DeviceRegisterActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/deviceRegisterTitle"
+            android:text="@string/device_register_title"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="#ff000000"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/deviceRegisterTitle2"
+            android:text="@string/device_register_title2"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="#ff000000"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/deviceRegisterInfo"
+            android:text="@string/device_register_info"
+            android:textSize="12sp"
+            android:textColor="#ff000000"
+            android:layout_marginTop="30sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/deviceRegisterInfo2"
+            android:text="@string/device_register_info2"
+            android:textSize="12sp"
+            android:textColor="#ff000000"/>
+
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:id="@+id/nameInput"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textSize="25sp"
+            android:hint="@string/device_register_edit_text"
+            android:layout_marginTop="30sp" />
+
+        <com.unstoppable.submitbuttonview.SubmitButton
+            android:id="@+id/submitButton"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30sp"
+            app:buttonText="@string/device_register_button_register"
+            app:buttonTextSize="25sp"
+            app:buttonColor="#19CC95"/>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

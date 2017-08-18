@@ -1,0 +1,19 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:title="@string/pref_app_version" />
+
+    <Preference
+        android:title="@string/pref_developer">
+        <intent
+            android:targetClass="com.lattechiffon.hanium.DeveloperActivity"
+            android:targetPackage="com.lattechiffon.hanium" />
+    </Preference>
+
+    <Preference
+        android:title="@string/pref_mentor" />
+
+    <Preference
+        android:title="@string/pref_project" />
+
+</PreferenceScreen>
