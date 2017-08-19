@@ -16,10 +16,6 @@ import com.estimote.coresdk.service.BeaconManager;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by yongguk on 2017. 8. 18..
- */
-
 public class BeaconApplication extends Application {
 
     private BeaconManager beaconManager;

@@ -1,12 +1,15 @@
 package com.lattechiffon.hanium;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -22,8 +25,16 @@ import okhttp3.RequestBody;
 public class DeviceRegisterActivity extends AppCompatActivity {
 
     boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
+    boolean nameIsEntered = false;
 
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
+
+    SubmitButton submitButton;
     EditText nameInput;
+    EditText phoneInput;
+    TextView welcomeText;
+    TextView infoText;
     BackgroundTask task;
 
     @Override
@@ -35,35 +46,30 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.activity_device_register));
         }
 
-
-        final SubmitButton submitButton = (SubmitButton) findViewById(R.id.submitButton);
+        submitButton = (SubmitButton) findViewById(R.id.submitButton);
         nameInput = (EditText) findViewById(R.id.nameInput);
+        phoneInput = (EditText) findViewById(R.id.phoneInput);
+        welcomeText = (TextView) findViewById(R.id.deviceRegisterTitle);
+        infoText = (TextView) findViewById(R.id.deviceRegisterTitle2);
+
+        pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
+        editor = pref.edit();
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        submitButton.doResult(true);
+                if (!nameIsEntered) {
+                    nameIsEntered = true;
+                    infoText.setText(R.string.device_register_title2_change);
+                    nameInput.setVisibility(View.GONE);
+                    phoneInput.setVisibility(View.VISIBLE);
+                    submitButton.reset();
 
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = new Intent();
-                                intent.setClass(DeviceRegisterActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+                    return;
+                }
 
-                                //startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                //DeviceRegisterActivity.this.finish();
-                            }
-                        }, 1500);
-
-                    }
-                }, 2000);
+                task = new BackgroundTask();
+                task.execute();
             }
         });
     }
@@ -85,7 +91,7 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -94,12 +100,15 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
         String name;
         String phone;
+        String push;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             name = nameInput.getText().toString();
+            phone = phoneInput.getText().toString();
+            push = FirebaseInstanceId.getInstance().getToken();
         }
 
         @Override
@@ -107,8 +116,8 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             OkHttpClient client = new OkHttpClient();
             RequestBody body = new FormBody.Builder()
                     .add("name", name)
-                    .add("phone", FirebaseInstanceId.getInstance().getToken())
-                    .add("token", FirebaseInstanceId.getInstance().getToken())
+                    .add("phone", phone)
+                    .add("token", push)
                     .build();
 
             Request request = new Request.Builder()
@@ -128,10 +137,74 @@ public class DeviceRegisterActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
-            try {
-                Toast.makeText(DeviceRegisterActivity.this, "" + a.body().string(), Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
 
+            try {
+                if (a.body().string().equals("Authorized")) {
+                    submitButton.doResult(true);
+
+                    editor.putBoolean("deviceRegister", true);
+                    editor.putString("name", name);
+                    editor.putString("phone", phone);
+                    editor.commit();
+
+                    Handler handler = new Handler();
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent();
+                            intent.setClass(DeviceRegisterActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+                            DeviceRegisterActivity.this.finish();
+                        }
+                    }, 1500);
+                } else {
+                    submitButton.doResult(false);
+
+                    welcomeText.setText(R.string.device_register_title_error);
+                    infoText.setText(R.string.device_register_title2_error);
+
+                    Handler handler = new Handler();
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            submitButton.reset();
+
+                            nameIsEntered = false;
+                            nameInput.setText("");
+                            phoneInput.setText("");
+                            phoneInput.setVisibility(View.GONE);
+                            nameInput.setVisibility(View.VISIBLE);
+                            welcomeText.setText(R.string.device_register_title);
+                            infoText.setText(R.string.device_register_title2);
+                        }
+                    }, 2000);
+                }
+
+            } catch (Exception e) {
+                submitButton.doResult(false);
+
+                welcomeText.setText(R.string.device_register_title_error);
+                infoText.setText(R.string.device_register_title2_error);
+
+                Handler handler = new Handler();
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        submitButton.reset();
+
+                        nameIsEntered = false;
+                        nameInput.setText("");
+                        phoneInput.setText("");
+                        phoneInput.setVisibility(View.GONE);
+                        nameInput.setVisibility(View.VISIBLE);
+                        welcomeText.setText(R.string.device_register_title);
+                        infoText.setText(R.string.device_register_title2);
+                    }
+                }, 2000);
             }
         }
     }

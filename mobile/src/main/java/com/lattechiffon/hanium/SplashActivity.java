@@ -36,7 +36,7 @@ public class SplashActivity extends Activity {
     public final int PERMISSIONS_ACCESS_FINE_LOCATION = 1;
     SharedPreferences pref, settingPref;
     BackgroundTask task;
-    String id, password, result;
+    String name, phone, result;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,9 +79,9 @@ public class SplashActivity extends Activity {
                 ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSIONS_ACCESS_FINE_LOCATION);
             }
         } else {
-            if (pref.getBoolean("autoLogin", false)) {
-                id = pref.getString("id", "");
-                password = pref.getString("pw", "");
+            if (pref.getBoolean("deviceRegister", false)) {
+                name = pref.getString("name", "");
+                phone = pref.getString("phone", "");
 
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -174,7 +174,7 @@ public class SplashActivity extends Activity {
 
     private String request(String urlStr) {
         StringBuilder json = new StringBuilder();
-        String parameter = "id=" + id + "&pw=" + password + "&token=" + FirebaseInstanceId.getInstance().getToken() + "&push=" + settingPref.getBoolean("notifications_new_message", true) + "&version=" + getString(R.string.app_version_code) + "";
+        String parameter = "name=" + name + "&phone=" + phone + "&token=" + FirebaseInstanceId.getInstance().getToken() + "&push=" + settingPref.getBoolean("notifications_new_message", true) + "&version=" + getString(R.string.app_version_code) + "";
 
         try {
             URL url = new URL(urlStr);
@@ -238,9 +238,9 @@ public class SplashActivity extends Activity {
 
                     Toast.makeText(SplashActivity.this, getString(R.string.permission_toast_allow_access_fine_location), Toast.LENGTH_LONG).show();
 
-                    if (pref.getBoolean("autoLogin", false)) {
-                        id = pref.getString("id", "");
-                        password = pref.getString("pw", "");
+                    if (pref.getBoolean("deviceRegister", false)) {
+                        name = pref.getString("name", "");
+                        phone = pref.getString("phone", "");
 
                         Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {

@@ -23,9 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
 
-//import android.content.Intent;
-
-
 public class ContactsActivity extends AppCompatActivity {
     SharedPreferences pref;
     SharedPreferences.Editor editor;
@@ -122,18 +119,18 @@ public class ContactsActivity extends AppCompatActivity {
 
                 while (keys.hasNext()) {
                     String key = keys.next();
-                    adapter.addItem(json.getString(key), key);
+                    adapter.addItem(json.getString(key), key, null);
                 }
 
                 return true;
             } else {
-                adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
+                adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.", null);
                 Toast.makeText(ContactsActivity.this, "소속 친구 데이터를 가져오지 못했습니다.", Toast.LENGTH_LONG).show();
 
                 return false;
             }
         } catch (JSONException e) {
-            adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
+            adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.", null);
             Toast.makeText(ContactsActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
 
             return false;

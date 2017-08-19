@@ -10,10 +10,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-/**
- * Created by yongguk on 2017. 2. 20..
- */
-
 class ContactsListViewAdapter extends BaseAdapter {
     private ArrayList<ContactsListViewItem> listViewItemList = new ArrayList<>();
 
@@ -57,11 +53,12 @@ class ContactsListViewAdapter extends BaseAdapter {
         return listViewItemList.get(position);
     }
 
-    void addItem(String name, String phone) {
+    void addItem(String name, String phone, String push) {
         ContactsListViewItem item = new ContactsListViewItem();
 
         item.setName(name);
         item.setPhone(phone);
+        item.setPush(push);
 
         listViewItemList.add(item);
     }

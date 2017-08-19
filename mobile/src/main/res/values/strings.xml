@@ -13,10 +13,14 @@
     <string name="activity_settings">설정</string>
 
     <string name="device_register_title">반갑습니다</string>
+    <string name="device_register_title_error">기기 등록을 실패하였습니다</string>
     <string name="device_register_title2">당신의 이름을 알려주세요</string>
+    <string name="device_register_title2_change">당신의 전화번호를 알려주세요</string>
+    <string name="device_register_title2_error">다시 시도하여 주세요</string>
     <string name="device_register_info">서비스를 이용하시려면 이용자의 기기 정보를 서버에 등록하여야 합니다.</string>
     <string name="device_register_info2">이 과정을 완료하시면 기기 정보 등록을 허용하는 것으로 간주합니다.</string>
     <string name="device_register_edit_text">이름을 입력해주세요</string>
+    <string name="device_register_edit_text_phone">전화번호를 입력해주세요</string>
     <string name="device_register_button_register">등록하기</string>
 
     <string name="emergency_title">낙상으로 인식되었습니다</string>
