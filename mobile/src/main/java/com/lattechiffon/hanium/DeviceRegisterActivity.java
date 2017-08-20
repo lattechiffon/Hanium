@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.unstoppable.submitbuttonview.SubmitButton;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -139,7 +142,9 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             super.onPostExecute(a);
 
             try {
-                if (a.body().string().equals("Authorized")) {
+                JSONObject json = new JSONObject(a.body().string());
+
+                if (json.getString("result").equals("Authorized")) {
                     submitButton.doResult(true);
 
                     editor.putBoolean("deviceRegister", true);
