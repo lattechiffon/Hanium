@@ -12,6 +12,8 @@
     <string name="activity_emergency">낙상 응급 알림</string>
     <string name="activity_settings">설정</string>
 
+    <string name="main_toast_list_refresh">새로운 데이터를 성공적으로 가져왔습니다.</string>
+
     <string name="device_register_title">반갑습니다</string>
     <string name="device_register_title_error">기기 등록을 실패하였습니다</string>
     <string name="device_register_title2">당신의 이름을 알려주세요</string>
@@ -36,9 +38,13 @@
     <string name="permission_dialog_title_read_contacts">잠시 후 앱에서 요청하는 연락처 데이터 접근 권한을 허용해주세요.</string>
     <string name="permission_dialog_body_read_contacts">낙상 발생 시 응급 알림을 받을 보호자를 선택하기 위해서는 반드시 연락처 데이터 접근 권한이 필요합니다.</string>
 
+    <string name="permission_dialog_title_read_phone_state">잠시 후 앱에서 요청하는 이용자 기기 상태 데이터 접근 권한을 허용해주세요.</string>
+    <string name="permission_dialog_body_read_phone_state">이용자 기기의 전화번호를 가져오기 위해서는 이용자 기기 상태 데이터 접근 권한이 필요합니다.</string>
+
     <string name="permission_dialog_title_deny">필수 접근 권한 거부</string>
     <string name="permission_toast_allow_access_fine_location">위치 데이터 접근 권한을 허용하셨습니다.</string>
-    <string name="permission_toast_allow_read_contacts">위치 데이터 접근 권한을 허용하셨습니다.</string>
+    <string name="permission_toast_allow_read_contacts">연락처 데이터 접근 권한을 허용하셨습니다.</string>
+    <string name="permission_toast_allow_read_phone_state">이용자 기기 상태 데이터 접근 권한을 허용하셨습니다.</string>
 
 
     <!-- 설정 -->

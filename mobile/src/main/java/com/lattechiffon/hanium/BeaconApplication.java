@@ -44,8 +44,7 @@ public class BeaconApplication extends Application {
                 pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
                 editor = pref.edit();
 
-                showNotification("비콘 영역으로 들어왔습니다.",
-                        "비콘 영역으로 들어왔습니다.");
+                showNotification("비콘 영역으로 들어오셨습니다.", "비콘 영역에서의 서비스 설정에 따라 앱이 동작합니다.");
 
                 if (!pref.getBoolean("beacon", false)) {
                     editor.putBoolean("beacon", true);
@@ -58,8 +57,7 @@ public class BeaconApplication extends Application {
                 pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
                 editor = pref.edit();
 
-                showNotification("비콘 영역에서 나갔습니다.",
-                        "비콘 영역에서 나갔습니다.");
+                showNotification("비콘 영역에서 벗어나셨습니다.", "기본 서비스 설정에 따라 앱이 동작합니다.");
 
                 if (pref.getBoolean("beacon", false)) {
                     editor.putBoolean("beacon", false);

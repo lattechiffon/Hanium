@@ -108,19 +108,18 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/falling_count_text_view"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@color/colorAccent"
             android:gravity="center"
-            android:text="지금까지 낙상이 3번 감지되었습니다."
+            android:text="낙상 감지 기록을 가져오고 있습니다."
             android:textColor="@color/colorPrimary"
             android:textSize="20sp" />
 
-        <TextView
+        <ListView
+            android:id="@+id/listViewFallingRecord"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="The Awesome Sliding Up Panel"
-            android:textSize="25sp" />
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

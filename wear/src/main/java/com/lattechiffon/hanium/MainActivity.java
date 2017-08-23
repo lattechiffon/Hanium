@@ -81,7 +81,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     editor.commit();
                 } else {
                     sendMessage("stop");
-                    vibrator.cancel();
+                    if (vibrator != null) {
+                        vibrator.cancel();
+                    }
                     mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     mTextView.setText("낙상 응급 알림이 중단되었습니다.");
                     mTextView.setTextSize(14);

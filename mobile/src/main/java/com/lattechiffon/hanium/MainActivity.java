@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
-//import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ramotion.foldingcell.FoldingCell;
@@ -27,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_CONTACTS = 2;
     boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
 
+    int listItemDataCount;
+
+    ListView listView;
+    TextView countTextView;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    FallingRecordListViewAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +45,18 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.app_name));
         }
 
-        //SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        countTextView = (TextView) findViewById(R.id.falling_count_text_view);
+
+        final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.clear();
+                loadListItem();
+            }
+        });
 
         SlidingUpPanelLayout slidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         slidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -100,6 +120,64 @@ public class MainActivity extends AppCompatActivity {
                fc.toggle(false);
            }
         });
+
+        adapter = new FallingRecordListViewAdapter();
+        loadListItem();
+
+        listView = (ListView) findViewById(R.id.listViewFallingRecord);
+        listView.setAdapter(adapter);
+
+        SwipeDismissListViewTouchListener touchListener =
+                new SwipeDismissListViewTouchListener(listView,
+                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                            @Override
+                            public boolean canDismiss(int position) {
+                                if (adapter.getCount() > 1) {
+                                    return true;
+                                }
+
+                                return false;
+                            }
+
+                            @Override
+                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    databaseHelper.insert("UPDATE FALLING_RECORD SET valid = 0 WHERE no = " + adapter.getItemNo(adapter.getItem(position)) + ";");
+                                    adapter.remove(adapter.getItem(position));
+                                    listItemDataCount--;
+                                    countTextView.setText("지금까지 낙상이 " + listItemDataCount + "번 감지되었습니다.");
+                                }
+                            }
+                        });
+        listView.setOnTouchListener(touchListener);
+        listView.setOnScrollListener(touchListener.makeScrollListener());
+
+    }
+
+    public void loadListItem() {
+        final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+
+        String[][] data = databaseHelper.selectFallingRecordAll();
+        listItemDataCount = data.length;
+
+        for (int i = 0; i < listItemDataCount; i++) {
+            adapter.addItem(Integer.parseInt(data[i][0]), data[i][1], Integer.parseInt(data[i][2]));
+        }
+
+        if (Integer.parseInt(data[data.length - 1][0]) != 0) {
+            countTextView.setText("지금까지 낙상이 " + listItemDataCount + "번 감지되었습니다.");
+        } else {
+            countTextView.setText("지금까지 낙상 감지 기록이 없습니다.");
+        }
+
+        adapter.notifyDataSetChanged();
+
+        if (mSwipeRefreshLayout.isRefreshing() == true) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(MainActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+        }
+
+
     }
 
     @Override

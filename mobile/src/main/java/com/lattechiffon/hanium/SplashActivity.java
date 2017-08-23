@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,20 +22,20 @@ import android.widget.Toast;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class SplashActivity extends Activity {
     public final int PERMISSIONS_ACCESS_FINE_LOCATION = 1;
     SharedPreferences pref, settingPref;
+    SharedPreferences.Editor editor;
     BackgroundTask task;
-    String name, phone, result;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +44,7 @@ public class SplashActivity extends Activity {
 
         pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         settingPref = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = pref.edit();
 
         if (!networkConnection()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
@@ -80,9 +80,6 @@ public class SplashActivity extends Activity {
             }
         } else {
             if (pref.getBoolean("deviceRegister", false)) {
-                name = pref.getString("name", "");
-                phone = pref.getString("phone", "");
-
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -104,114 +101,72 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private boolean loginValidation(String loginData) {
-        try {
-            JSONObject json = new JSONObject(loginData);
+    private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
-            if (json.getString("result").equals("Authorized")) {
-
-                return true;
-            } else if (json.getString("result").equals("UpdatesRecommended")) {
-                Toast.makeText(SplashActivity.this, "이 버전에서는 더 이상 로그인할 수 없습니다. 구글 플레이에서 최신 버전으로 업데이트해주시기 바랍니다.", Toast.LENGTH_LONG).show();
-
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse("market://details?id=" + getPackageName()));
-                    startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName()));
-                    startActivity(intent);
-                }
-
-                return false;
-            } else {
-                Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
-
-                return false;
-            }
-        } catch (JSONException e) {
-            Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
-
-            return false;
-        }
-    }
-
-    private class BackgroundTask extends AsyncTask<String, Integer, String> {
         ProgressDialog AsycDialog = new ProgressDialog(SplashActivity.this);
+        String name;
+        String phone;
+        String push;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            AsycDialog.setMessage("잠시만 기다려주십시오.");
+            AsycDialog.setMessage("이용자 인증 처리 중입니다.");
             AsycDialog.show();
+
+            name = pref.getString("name", "");
+            phone = pref.getString("phone", "");
+            push = FirebaseInstanceId.getInstance().getToken();
         }
 
         @Override
-        protected String doInBackground(String... arg0) {
-            result = request("http://www.lattechiffon.com/gauss/app/login_query.php");
+        protected okhttp3.Response doInBackground(String... arg0) {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody body = new FormBody.Builder()
+                    .add("name", name)
+                    .add("phone", phone)
+                    .add("token", push)
+                    .build();
 
-            return result;
+            Request request = new Request.Builder()
+                    .url("http://www.lattechiffon.com/hanium/login.php")
+                    .post(body)
+                    .build();
+
+            try {
+                return client.newCall(request).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+
         }
 
         @Override
-        protected void onPostExecute(String a) {
+        protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
-            AsycDialog.dismiss();
 
-            if (loginValidation(result)) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+            try {
+                JSONObject json = new JSONObject(a.body().string());
 
-                SplashActivity.this.finish();
-            } else {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                SplashActivity.this.finish();
-            }
-        }
-    }
+                if (json.getString("result").equals("Authorized")) {
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    finish();
+                } else {
+                    editor.putBoolean("deviceRegister", false);
+                    editor.commit();
 
-    private String request(String urlStr) {
-        StringBuilder json = new StringBuilder();
-        String parameter = "name=" + name + "&phone=" + phone + "&token=" + FirebaseInstanceId.getInstance().getToken() + "&push=" + settingPref.getBoolean("notifications_new_message", true) + "&version=" + getString(R.string.app_version_code) + "";
+                    Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
 
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            if (conn != null) {
-                conn.setConnectTimeout(10000);
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-                OutputStream os = conn.getOutputStream();
-                os.write(parameter.getBytes("utf-8"));
-                os.flush();
-                os.close();
-
-                int responseCode = conn.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        json.append(line).append("");
-                    }
-
-                    reader.close();
-
+                    startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
+                    finish();
                 }
-                conn.disconnect();
-            }
-        } catch (Exception e) {
-            Toast.makeText(SplashActivity.this, "서버와의 통신 과정에 문제가 발생했습니다.", Toast.LENGTH_LONG).show();
-        }
 
-        return json.toString();
+            } catch (Exception e) {
+
+            }
+        }
     }
 
     private boolean networkConnection() {
@@ -239,9 +194,6 @@ public class SplashActivity extends Activity {
                     Toast.makeText(SplashActivity.this, getString(R.string.permission_toast_allow_access_fine_location), Toast.LENGTH_LONG).show();
 
                     if (pref.getBoolean("deviceRegister", false)) {
-                        name = pref.getString("name", "");
-                        phone = pref.getString("phone", "");
-
                         Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {
                             @Override
@@ -262,7 +214,6 @@ public class SplashActivity extends Activity {
                     }
 
                 } else {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_deny));
                     builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -274,6 +225,7 @@ public class SplashActivity extends Activity {
                     AlertDialog alert = builder.create();
                     alert.show();
                 }
+
                 return;
             }
         }

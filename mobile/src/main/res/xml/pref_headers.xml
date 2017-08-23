@@ -4,7 +4,7 @@
 
     <header
         android:fragment="com.lattechiffon.hanium.SettingsActivity$ModePreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
+        android:icon="@drawable/ic_watch_black_24dp"
         android:title="@string/pref_header_modes" />
 
     <header

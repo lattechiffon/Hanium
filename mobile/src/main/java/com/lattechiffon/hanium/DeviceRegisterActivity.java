@@ -1,13 +1,19 @@
 package com.lattechiffon.hanium;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,8 +33,12 @@ import okhttp3.RequestBody;
 
 public class DeviceRegisterActivity extends AppCompatActivity {
 
+    public final int PERMISSIONS_READ_PHONE_STATE = 3;
     boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
     boolean nameIsEntered = false;
+    boolean autoPhoneNumber = false;
+
+    String phoneNumber;
 
     SharedPreferences pref;
     SharedPreferences.Editor editor;
@@ -75,28 +85,33 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                 task.execute();
             }
         });
-    }
 
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            moveTaskToBack(true);
-            finish();
-            android.os.Process.killProcess(android.os.Process.myPid());
-
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, getString(R.string.toast_exit), Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
+                builder.setTitle(getString(R.string.permission_dialog_title_read_phone_state));
+                builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ActivityCompat.requestPermissions(DeviceRegisterActivity.this, new String[] { android.Manifest.permission.READ_PHONE_STATE }, PERMISSIONS_READ_PHONE_STATE);
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.READ_PHONE_STATE }, PERMISSIONS_READ_PHONE_STATE);
             }
-        }, 2000);
+        } else {
+            autoPhoneNumber = true;
+
+            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+            phoneNumber = telephonyManager.getLine1Number();
+            phoneNumber = phoneNumber.replace("+82", "0");
+
+            phoneInput.setText(phoneNumber);
+            phoneInput.setFocusable(false);
+            phoneInput.setClickable(false);
+        }
     }
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
@@ -179,7 +194,9 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
                             nameIsEntered = false;
                             nameInput.setText("");
-                            phoneInput.setText("");
+                            if (!autoPhoneNumber) {
+                                phoneInput.setText("");
+                            }
                             phoneInput.setVisibility(View.GONE);
                             nameInput.setVisibility(View.VISIBLE);
                             welcomeText.setText(R.string.device_register_title);
@@ -203,7 +220,9 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
                         nameIsEntered = false;
                         nameInput.setText("");
-                        phoneInput.setText("");
+                        if (!autoPhoneNumber) {
+                            phoneInput.setText("");
+                        }
                         phoneInput.setVisibility(View.GONE);
                         nameInput.setVisibility(View.VISIBLE);
                         welcomeText.setText(R.string.device_register_title);
@@ -212,5 +231,58 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                 }, 2000);
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_READ_PHONE_STATE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(DeviceRegisterActivity.this, getString(R.string.permission_toast_allow_read_phone_state), Toast.LENGTH_LONG).show();
+
+                    autoPhoneNumber = true;
+
+                    TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+                    phoneNumber = telephonyManager.getLine1Number();
+                    phoneNumber = phoneNumber.replace("+82", "0");
+
+                    phoneInput.setText(phoneNumber);
+                    phoneInput.setFocusable(false);
+                    phoneInput.setClickable(false);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
+                    builder.setTitle(getString(R.string.permission_dialog_title_deny));
+                    builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton("확인", null);
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            moveTaskToBack(true);
+            finish();
+            android.os.Process.killProcess(android.os.Process.myPid());
+
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, getString(R.string.toast_exit), Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
     }
 }

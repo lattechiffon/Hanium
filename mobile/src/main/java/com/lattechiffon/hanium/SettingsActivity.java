@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.media.audiofx.BassBoost;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -207,16 +208,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
-            if (key.equals("modes_user_mode")) {
-                SharedPreferences pushPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                //pushPref.setSummary(pref.getString(key, ""));
 
-                if (pushPref.getBoolean(key, true)) {
-                    Toast.makeText(getActivity(), "다음 로그인부터 푸시 기능이 활성화됩니다.", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getActivity(), "다음 로그인부터 앱 푸시를 수신하지 않습니다.", Toast.LENGTH_LONG).show();
-                }
-            }
         }
     }
 
@@ -255,16 +247,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
-            if (key.equals("notifications_new_message")) {
-                SharedPreferences pushPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                //pushPref.setSummary(pref.getString(key, ""));
 
-                if (pushPref.getBoolean(key, true)) {
-                    Toast.makeText(getActivity(), "다음 로그인부터 푸시 기능이 활성화됩니다.", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getActivity(), "다음 로그인부터 앱 푸시를 수신하지 않습니다.", Toast.LENGTH_LONG).show();
-                }
-            }
         }
     }
 

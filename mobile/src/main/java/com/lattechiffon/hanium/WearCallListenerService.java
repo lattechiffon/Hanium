@@ -3,12 +3,15 @@ package com.lattechiffon.hanium;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class WearCallListenerService extends WearableListenerService {
+
     public static String SERVICE_CALLED_WEAR = "WearFallRecognition";
 
     SharedPreferences pref;
@@ -18,6 +21,8 @@ public class WearCallListenerService extends WearableListenerService {
     public void onMessageReceived(MessageEvent messageEvent) {
         super.onMessageReceived(messageEvent);
 
+        final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
@@ -25,14 +30,16 @@ public class WearCallListenerService extends WearableListenerService {
 
         String [] message = event.split("--");
 
-        if (message[0].equals(SERVICE_CALLED_WEAR))  {
-            Log.d("수신", message[1]);
+        if (message[0].equals(SERVICE_CALLED_WEAR)) {
             switch(message[1]) {
                 case "fall":
-                    Log.d("현재 상태", pref.getBoolean("fall", false) + "");
                     if (!pref.getBoolean("fall", false)) {
                         editor.putBoolean("fall", true);
                         editor.commit();
+
+                        String currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(System.currentTimeMillis()));
+
+                        databaseHelper.insert("INSERT INTO FALLING_RECORD(datetime, result, valid) VALUES('" + currentDatetime + "', 1, 1);");
 
                         Intent intent = new Intent();
                         intent.setClass(getApplicationContext(), EmergencyActivity.class)
@@ -45,19 +52,20 @@ public class WearCallListenerService extends WearableListenerService {
 
                     break;
                 case "stop":
-                    Log.d("현재 상태", pref.getBoolean("fall", false) + "");
                     if (pref.getBoolean("fall", false)) {
                         editor.putBoolean("fall", false);
                         editor.commit();
+
+                        int topNo = databaseHelper.selectTopNo();
+
+                        databaseHelper.update("UPDATE FALLING_RECORD SET result = 0 WHERE no = " + topNo + ";");
                     }
 
                     break;
             }
 
-
             //startActivity(new Intent((Intent) SplashActivity.getInstance().tutorials.get(message[1]))
                     //.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
-
 }
