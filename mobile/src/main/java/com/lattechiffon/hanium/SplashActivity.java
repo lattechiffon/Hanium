@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -57,53 +58,53 @@ public class SplashActivity extends Activity {
             });
             AlertDialog alert = builder.create();
             alert.show();
-        }
-
-        FirebaseMessaging.getInstance().subscribeToTopic("notice");
-        FirebaseMessaging.getInstance().subscribeToTopic("emergency");
-        FirebaseMessaging.getInstance().subscribeToTopic("feedback");
-        FirebaseInstanceId.getInstance().getToken();
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
-                builder.setTitle(getString(R.string.permission_dialog_title_access_fine_location));
-                builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        ActivityCompat.requestPermissions(SplashActivity.this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSIONS_ACCESS_FINE_LOCATION);
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
-            } else {
-                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSIONS_ACCESS_FINE_LOCATION);
-            }
         } else {
-            if (pref.getBoolean("deviceRegister", false)) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        task = new BackgroundTask();
-                        task.execute();
-                    }
-                }, 1000);
+            FirebaseMessaging.getInstance().subscribeToTopic("notice");
+            FirebaseMessaging.getInstance().subscribeToTopic("emergency");
+            FirebaseMessaging.getInstance().subscribeToTopic("feedback");
+            FirebaseInstanceId.getInstance().getToken();
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
+                    builder.setTitle(getString(R.string.permission_dialog_title_access_fine_location));
+                    builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_ACCESS_FINE_LOCATION);
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_ACCESS_FINE_LOCATION);
+                }
             } else {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
-                        SplashActivity.this.finish();
-                    }
-                }, 1000);
+                if (pref.getBoolean("deviceRegister", false)) {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            task = new BackgroundTask();
+                            task.execute();
+                        }
+                    }, 1000);
+                } else {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
+                            SplashActivity.this.finish();
+                        }
+                    }, 1000);
+                }
             }
         }
     }
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
-        ProgressDialog AsycDialog = new ProgressDialog(SplashActivity.this);
+        ProgressDialog progressDialog = new ProgressDialog(SplashActivity.this);
         String name;
         String phone;
         String push;
@@ -112,8 +113,9 @@ public class SplashActivity extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            AsycDialog.setMessage("이용자 인증 처리 중입니다.");
-            AsycDialog.show();
+            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            progressDialog.setMessage("이용자 인증 처리 중입니다.");
+            progressDialog.show();
 
             name = pref.getString("name", "");
             phone = pref.getString("phone", "");
@@ -146,6 +148,8 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
+
+            progressDialog.dismiss();
 
             try {
                 JSONObject json = new JSONObject(a.body().string());

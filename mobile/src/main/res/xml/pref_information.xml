@@ -16,4 +16,11 @@
     <Preference
         android:title="@string/pref_project" />
 
+    <Preference
+        android:title="@string/pref_open_source_license">
+        <intent
+            android:targetClass="com.lattechiffon.hanium.OpenSourceActivity"
+            android:targetPackage="com.lattechiffon.hanium" />
+    </Preference>
+
 </PreferenceScreen>

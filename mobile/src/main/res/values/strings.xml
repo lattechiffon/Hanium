@@ -69,5 +69,5 @@
     <string name="pref_developer">기획/개발: DoIT (세종대학교 컴퓨터공학과)</string>
     <string name="pref_mentor">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
     <string name="pref_project">2017 한이음 공모전 출품 앱</string>
-
+    <string name="pref_open_source_license">오픈 소스 라이선스</string>
 </resources>

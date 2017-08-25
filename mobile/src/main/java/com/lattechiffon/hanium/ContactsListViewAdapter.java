@@ -53,12 +53,11 @@ class ContactsListViewAdapter extends BaseAdapter {
         return listViewItemList.get(position);
     }
 
-    void addItem(String name, String phone, String push) {
+    void addItem(String name, String phone) {
         ContactsListViewItem item = new ContactsListViewItem();
 
         item.setName(name);
         item.setPhone(phone);
-        item.setPush(push);
 
         listViewItemList.add(item);
     }

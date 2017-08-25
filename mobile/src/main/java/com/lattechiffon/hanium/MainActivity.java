@@ -1,9 +1,11 @@
 package com.lattechiffon.hanium;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,14 +27,17 @@ import com.ramotion.foldingcell.FoldingCell;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_CONTACTS = 2;
     boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
+    SharedPreferences pref;
 
     int listItemDataCount;
 
     ListView listView;
-    TextView countTextView;
+    TextView countTextView, welcomeTextView;
     SwipeRefreshLayout mSwipeRefreshLayout;
     FallingRecordListViewAdapter adapter;
 
@@ -45,7 +50,12 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.app_name));
         }
 
+        pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
+
         countTextView = (TextView) findViewById(R.id.falling_count_text_view);
+        welcomeTextView = (TextView) findViewById(R.id.welcome_text_view);
+
+        welcomeTextView.setText(pref.getString("name", "비인증 사용자") + " 님 반갑습니다");
 
         final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
 

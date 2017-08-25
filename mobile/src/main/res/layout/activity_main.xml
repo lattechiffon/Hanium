@@ -31,11 +31,12 @@
                 android:layout_margin="10dp">
 
                 <TextView
+                    android:id="@+id/welcome_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#FFFFFF"
                     android:gravity="center"
-                    android:text="테스트 님 반갑습니다"
+                    android:text="반갑습니다"
                     android:textSize="20sp"
                     android:padding="10dp"/>
 

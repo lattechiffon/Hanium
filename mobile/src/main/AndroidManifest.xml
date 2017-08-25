@@ -35,6 +35,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".DeveloperActivity" />
+        <activity android:name=".OpenSourceActivity" />
         <activity android:name=".ContactsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

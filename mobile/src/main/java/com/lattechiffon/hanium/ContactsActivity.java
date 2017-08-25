@@ -3,25 +3,29 @@ package com.lattechiffon.hanium;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Iterator;
+import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class ContactsActivity extends AppCompatActivity {
     SharedPreferences pref;
@@ -53,33 +57,110 @@ public class ContactsActivity extends AppCompatActivity {
         listView.setOnItemClickListener(listener);
         listView.setOnItemLongClickListener(longClickListener);
 
-        SwipeDismissListViewTouchListener touchListener =
-                new SwipeDismissListViewTouchListener(listView,
-                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
-                            @Override
-                            public boolean canDismiss(int position) {
-                                if (adapter.getCount() > 1) {
-                                    return true;
-                                }
-
-                                return false;
-                            }
-
-                            @Override
-                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-                                for (int position : reverseSortedPositions) {
-                                    adapter.remove(adapter.getItem(position));
-                                }
-                            }
-                        });
-        listView.setOnTouchListener(touchListener);
-        listView.setOnScrollListener(touchListener.makeScrollListener());
-
         pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
         task = new BackgroundTask();
         task.execute();
+    }
+
+    private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
+
+        ProgressDialog progressDialog = new ProgressDialog(ContactsActivity.this);
+        JSONObject jsonObject;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            progressDialog.setMessage("이용자 데이터 처리 중입니다.");
+            progressDialog.show();
+        }
+
+        @Override
+        protected okhttp3.Response doInBackground(String... arg0) {
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            OkHttpClient client = new OkHttpClient();
+            jsonObject = getContactsList();
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+
+            Request request = new Request.Builder()
+                    .url("http://www.lattechiffon.com/hanium/contacts_processing.php")
+                    .post(body)
+                    .build();
+
+            try {
+                return client.newCall(request).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(okhttp3.Response a) {
+            super.onPostExecute(a);
+
+            progressDialog.dismiss();
+            adapter.notifyDataSetChanged();
+
+            try {
+                Log.d("JSON", a.body().string());
+            } catch (IOException e) {
+                Log.d("JSON", "Error");
+            }
+
+            try {
+                JSONObject json = new JSONObject(a.body().string());
+
+                if (json.getString("result").equals("Authorized")) {
+
+                } else {
+
+                }
+
+            } catch (Exception e) {
+
+            }
+
+        }
+    }
+
+    private JSONObject getContactsList() {
+        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME }, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
+
+        int resultCount = cursor.getCount();
+
+        if (resultCount == 0) {
+            return null;
+        }
+
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            JSONArray jsonArray = new JSONArray();
+            while (cursor.moveToNext()) {
+                String contactsId = cursor.getString(0);
+                Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactsId, null, null);
+
+                while (phoneCursor.moveToNext()) {
+                    JSONObject jsonDataObject = new JSONObject();
+
+                    jsonDataObject.put("id", contactsId);
+                    jsonDataObject.put("name", cursor.getString(1));
+                    jsonDataObject.put("phone", phoneCursor.getString(0));
+                    jsonArray.put(jsonDataObject);
+                    adapter.addItem(cursor.getString(1), phoneCursor.getString(0));
+                }
+            }
+
+            jsonObject.put("user", jsonArray);
+        } catch (JSONException e) {
+            return null;
+        }
+
+        return jsonObject;
     }
 
     AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
@@ -109,7 +190,7 @@ public class ContactsActivity extends AppCompatActivity {
             //startActivity(intent);
         }
     };
-
+/*
     private boolean getContactsData(String loginData) {
         try {
             JSONObject json = new JSONObject(loginData);
@@ -119,18 +200,18 @@ public class ContactsActivity extends AppCompatActivity {
 
                 while (keys.hasNext()) {
                     String key = keys.next();
-                    adapter.addItem(json.getString(key), key, null);
+                    adapter.addItem(json.getString(key), key);
                 }
 
                 return true;
             } else {
-                adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.", null);
+                adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
                 Toast.makeText(ContactsActivity.this, "소속 친구 데이터를 가져오지 못했습니다.", Toast.LENGTH_LONG).show();
 
                 return false;
             }
         } catch (JSONException e) {
-            adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.", null);
+            adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
             Toast.makeText(ContactsActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
 
             return false;
@@ -213,7 +294,7 @@ public class ContactsActivity extends AppCompatActivity {
 
         return json.toString();
     }
-
+*/
     @Override
     public void onBackPressed() {
         super.onBackPressed();
