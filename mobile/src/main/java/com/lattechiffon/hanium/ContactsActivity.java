@@ -30,7 +30,6 @@ import okhttp3.RequestBody;
 public class ContactsActivity extends AppCompatActivity {
     SharedPreferences pref;
     SharedPreferences.Editor editor;
-    String result;
     BackgroundTask task;
 
     ListView listView;
@@ -83,6 +82,7 @@ public class ContactsActivity extends AppCompatActivity {
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             OkHttpClient client = new OkHttpClient();
             jsonObject = getContactsList();
+
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
 
             Request request = new Request.Builder()
@@ -103,27 +103,26 @@ public class ContactsActivity extends AppCompatActivity {
             super.onPostExecute(a);
 
             progressDialog.dismiss();
-            adapter.notifyDataSetChanged();
-
-            try {
-                Log.d("JSON", a.body().string());
-            } catch (IOException e) {
-                Log.d("JSON", "Error");
-            }
 
             try {
                 JSONObject json = new JSONObject(a.body().string());
 
-                if (json.getString("result").equals("Authorized")) {
-
+                if (json.getString("count").equals("0")) {
+                    adapter.addItem("서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.");
                 } else {
+                    JSONArray user = json.getJSONArray(("user"));
+
+                    for (int i = 0; i < user.length(); i++) {
+                        JSONObject userObject = user.getJSONObject(i);
+                        adapter.addItem(userObject.getString("name"), userObject.getString("phone"));
+                    }
 
                 }
-
             } catch (Exception e) {
-
+                adapter.addItem("알 수 없는 오류가 발생했습니다.", "새로고침하여 다시 리스트를 가져와주세요.");
             }
 
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -149,9 +148,8 @@ public class ContactsActivity extends AppCompatActivity {
 
                     jsonDataObject.put("id", contactsId);
                     jsonDataObject.put("name", cursor.getString(1));
-                    jsonDataObject.put("phone", phoneCursor.getString(0));
+                    jsonDataObject.put("phone", phoneCursor.getString(0).replaceAll("-", ""));
                     jsonArray.put(jsonDataObject);
-                    adapter.addItem(cursor.getString(1), phoneCursor.getString(0));
                 }
             }
 
@@ -171,7 +169,7 @@ public class ContactsActivity extends AppCompatActivity {
             String name = item.getName();
             String phone = item.getPhone();
 
-            Toast.makeText(ContactsActivity.this, "이렇게 길게 누르면 " + name + " 님을 응급 알림 대상자에서 해제할 지의 여부를 묻습니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(ContactsActivity.this, "이렇게 길게 누르면 " + name + " 님을 응급 알림 보호자에서 해제할 지의 여부를 묻습니다.", Toast.LENGTH_LONG).show();
 
             return true;
         }
@@ -185,116 +183,12 @@ public class ContactsActivity extends AppCompatActivity {
             String name = item.getName();
             String phone = item.getPhone();
 
-            Toast.makeText(ContactsActivity.this, "이렇게 한 번 누르면 그동안 " + name + " 님에게 전달된 알림 목록을 보여줍니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(ContactsActivity.this, "이렇게 한 번 누르면 " + name + " 님을 낙상 응급 알림 보호자로 지정합니다.", Toast.LENGTH_LONG).show();
             //Intent intent = new Intent(getContext(), UserInfoScrollingActivity.class);
             //startActivity(intent);
         }
     };
-/*
-    private boolean getContactsData(String loginData) {
-        try {
-            JSONObject json = new JSONObject(loginData);
-            Iterator<String> keys = json.keys();
 
-            if (json.getString(keys.next()).equals("Authorized")) {
-
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    adapter.addItem(json.getString(key), key);
-                }
-
-                return true;
-            } else {
-                adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
-                Toast.makeText(ContactsActivity.this, "소속 친구 데이터를 가져오지 못했습니다.", Toast.LENGTH_LONG).show();
-
-                return false;
-            }
-        } catch (JSONException e) {
-            adapter.addItem("등록된 전화번호가 없습니다.", "연락처가 등록되어 있는지 확인해주세요.");
-            Toast.makeText(ContactsActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
-
-            return false;
-        }
-    }
-
-    private class BackgroundTask extends AsyncTask<String, Integer, String> {
-        ProgressDialog AsycDialog = new ProgressDialog(ContactsActivity.this);
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            AsycDialog.setMessage("잠시만 기다려주십시오.");
-            AsycDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(String... arg0) {
-            result = request("http://www.lattechiffon.com/gauss/app/load_data.php");
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String a) {
-            super.onPostExecute(a);
-            AsycDialog.dismiss();
-
-            if (getContactsData(result)) {
-                Toast.makeText(ContactsActivity.this, "소속 친구 데이터를 성공적으로 가져왔습니다.", Toast.LENGTH_LONG).show();
-
-                //Intent intent = new Intent(getContext(), MainActivity.class);
-                //startActivity(intent);
-            }
-
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    private String request(String urlStr) {
-        StringBuilder json = new StringBuilder();
-        String parameter = "id=" + pref.getString("id", null) + "&pw=" + pref.getString("pw", null) + "&destination=friends";
-
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            if (conn != null) {
-                conn.setConnectTimeout(10000);
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-                OutputStream os = conn.getOutputStream();
-                os.write(parameter.getBytes("utf-8"));
-                os.flush();
-                os.close();
-
-                int responseCode = conn.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        json.append(line).append("");
-                    }
-
-                    reader.close();
-
-                }
-                conn.disconnect();
-            }
-        } catch (Exception e) {
-            Log.e("SampleHTTP", "Exception in processing response.", e);
-            e.printStackTrace();
-        }
-
-        return json.toString();
-    }
-*/
     @Override
     public void onBackPressed() {
         super.onBackPressed();
