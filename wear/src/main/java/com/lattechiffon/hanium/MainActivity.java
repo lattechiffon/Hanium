@@ -2,6 +2,7 @@ package com.lattechiffon.hanium;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -45,6 +46,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(this, FallingCheckService.class);
+        startService(intent);
+
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
@@ -69,10 +73,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 if (!pref.getBoolean("fall", false)) {
 
                     sendMessage("fall");
-                    timerCount = 10;
+                    timerCount = 15;
 
                     vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500};
+                    long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
                     vibrator.vibrate(pattern, -1);
 
                     delayTimer.sendEmptyMessage(0);
@@ -111,7 +115,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             if (pref.getBoolean("fall", false)) {
                 mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-                if (timerCount == 10 || timerCount == 9) {
+                if (timerCount == 15 || timerCount == 14) {
                     mTextView.setText("낙상으로 인식되었습니다\n\n화면을 터치하면 알림이 중단됩니다");
                     mTextView.setTextSize(14);
                 } else if (timerCount % 5 == 0 || timerCount % 5 == 4) {
@@ -172,6 +176,14 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Intent intent = new Intent(this, FallingCheckService.class);
+        stopService(intent);
     }
 
     /**

@@ -37,6 +37,7 @@ dependencies {
     compile 'com.unstoppable:submitbutton:1.1.2'
     compile 'com.ramotion.foldingcell:folding-cell:1.2.1'
     compile 'com.estimote:sdk:1.0.3@aar'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     testCompile 'junit:junit:4.12'
 }
 

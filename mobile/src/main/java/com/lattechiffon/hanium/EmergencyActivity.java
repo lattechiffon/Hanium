@@ -13,16 +13,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
+import com.estimote.coresdk.recognition.packets.Beacon;
+import com.estimote.coresdk.service.BeaconManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.unstoppable.submitbuttonview.SubmitButton;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -31,17 +36,25 @@ import okhttp3.RequestBody;
 
 public class EmergencyActivity extends AppCompatActivity {
 
-    boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
     int timerCount;
 
     BackgroundTask task;
     LocationManager locationManager;
+    private BeaconManager beaconManager;
     Vibrator vibrator;
 
-    SharedPreferences pref;
+    SharedPreferences pref, userPref;
     SharedPreferences.Editor editor;
 
     TextView infoText;
+    SubmitButton stopButton;
+
+    BeaconRegion beaconRegion;
+    int beaconDistance;
+    double longitude, latitude, altitude;
+    float accuracy;
+
+    String provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +69,30 @@ public class EmergencyActivity extends AppCompatActivity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
+        beaconManager = new BeaconManager(getApplicationContext());
+
+        beaconManager.setRangingListener(new BeaconManager.BeaconRangingListener() {
+            @Override
+            public void onBeaconsDiscovered(BeaconRegion region, List<Beacon> list) {
+                if (!list.isEmpty()) {
+                    Beacon nearestBeacon = list.get(0);
+                    beaconDistance = Math.abs(nearestBeacon.getRssi());
+                }
+            }
+        });
+
+        beaconRegion = new BeaconRegion(
+                "monitored region",
+                UUID.fromString("b9407f30-f5f8-466e-aff9-25556b57fe6d"),
+                34378, 4469);
+
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
+        userPref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        final SubmitButton stopButton = (SubmitButton) findViewById(R.id.stopButton);
+        stopButton = (SubmitButton) findViewById(R.id.stopButton);
         infoText = (TextView) findViewById(R.id.emergencyInfo);
-        timerCount = 10;
+        timerCount = 15;
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,28 +123,41 @@ public class EmergencyActivity extends AppCompatActivity {
         });
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500};
+        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
         vibrator.vibrate(pattern, -1);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        // ToDo: 사용자가 비콘 지역 내에 존재하는 경우 아래의 GPS를 통한 위치 정보는 가져오지 않도록 수정한다.
-
-        /* GPS 데이터 호출 : 원칙적으로 네트워크 제공자와 GPS 데이터를 동시에 가져온다. */
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, // 등록할 위치제공자
-                    100, // 통지사이의 최소 시간간격 (mSec)
-                    1, // 통지사이의 최소 변경거리 (m)
-                    mLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
-                    100, // 통지사이의 최소 시간간격 (mSec)
-                    1, // 통지사이의 최소 변경거리 (m)
-                    mLocationListener);
-        } catch (SecurityException e) {
-
+        while (true) {
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, mLocationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, mLocationListener);
+                break;
+            } catch (SecurityException e) {
+                continue;
+            }
         }
 
         delayTimer.sendEmptyMessage(0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+              @Override
+              public void onServiceReady() {
+                  beaconManager.startRanging(beaconRegion);
+              }
+          });
+    }
+
+    @Override
+    protected void onPause() {
+        beaconManager.stopRanging(beaconRegion);
+
+        super.onPause();
     }
 
     Handler delayTimer = new Handler() {
@@ -127,12 +171,18 @@ public class EmergencyActivity extends AppCompatActivity {
 
                 finish();
             } else {
+                if (timerCount == 5) {
+                    stopButton.setVisibility(View.INVISIBLE);
+                }
+
                 infoText.setText(timerCount + "초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.");
 
                 if (timerCount-- > 0) {
                     delayTimer.sendEmptyMessageDelayed(0, 1000);
                 } else {
                     locationManager.removeUpdates(mLocationListener);
+                    task = new BackgroundTask();
+                    task.execute();
                     Toast.makeText(EmergencyActivity.this, "등록된 모든 보호자에게 응급 푸쉬가 발송되었습니다.", Toast.LENGTH_LONG).show();
                 }
             }
@@ -142,15 +192,13 @@ public class EmergencyActivity extends AppCompatActivity {
     private final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            double longitude = location.getLongitude(); // 경도
-            double latitude = location.getLatitude();   // 위도
-            double altitude = location.getAltitude();   // 고도
-            float accuracy = location.getAccuracy();    // 정확도
-            String provider = location.getProvider();   // 위치 제공자
+            longitude = location.getLongitude(); // 경도
+            latitude = location.getLatitude();   // 위도
+            altitude = location.getAltitude();   // 고도
+            accuracy = location.getAccuracy();
+            provider = location.getProvider();
 
             Toast.makeText(getApplicationContext(), "위치 정보를 가져오고 있습니다.", Toast.LENGTH_LONG).show();
-
-            //Toast.makeText(getApplicationContext(), "위치정보 : " + provider + "\n위도 : " + longitude + "\n경도 : " + latitude + "\n고도 : " + altitude + "\n정확도 : "  + accuracy, Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -169,28 +217,6 @@ public class EmergencyActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            moveTaskToBack(true);
-            finish();
-            android.os.Process.killProcess(android.os.Process.myPid());
-
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, getString(R.string.toast_exit), Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
-    }
-
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
         String name;
@@ -200,20 +226,38 @@ public class EmergencyActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            name = "테스트";
+            name = userPref.getString("name", "error");
+            phone = userPref.getString("phone", "error");
         }
 
         @Override
         protected okhttp3.Response doInBackground(String... arg0) {
             OkHttpClient client = new OkHttpClient();
-            RequestBody body = new FormBody.Builder()
-                    .add("name", name)
-                    .add("phone", FirebaseInstanceId.getInstance().getToken())
-                    .add("token", FirebaseInstanceId.getInstance().getToken())
-                    .build();
+            RequestBody body;
+
+            if (pref.getBoolean("beacon", false)) {
+                body = new FormBody.Builder()
+                        .add("name", name)
+                        .add("phone", phone)
+                        .add("longitude", longitude + "")
+                        .add("latitude", latitude + "")
+                        .add("altitude", altitude + "")
+                        .add("beacon", "true")
+                        .add("distance", beaconDistance + "")
+                        .build();
+            } else {
+                body = new FormBody.Builder()
+                        .add("name", name)
+                        .add("phone", phone)
+                        .add("longitude", longitude + "")
+                        .add("latitude", latitude + "")
+                        .add("altitude", altitude + "")
+                        .add("beacon", "false")
+                        .build();
+            }
 
             Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/register.php")
+                    .url("http://www.lattechiffon.com/hanium/send_notification.php")
                     .post(body)
                     .build();
 
@@ -235,5 +279,10 @@ public class EmergencyActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        return;
     }
 }

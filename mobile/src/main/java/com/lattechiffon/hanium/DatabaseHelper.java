@@ -39,6 +39,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public boolean checkProtector(int userNo) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE userNo = " + userNo + " AND valid = 1;", null);
+
+        int resultCount = cursor.getCount();
+
+        if (resultCount == 1) {
+            return true;
+        }
+
+        return false;
+
+    }
+
     public String[][] selectFallingRecordAll() {
         SQLiteDatabase db = getReadableDatabase();
         //String retStr[][] = { new String[4] };

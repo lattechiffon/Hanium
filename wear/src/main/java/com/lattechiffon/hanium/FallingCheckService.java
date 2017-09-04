@@ -8,18 +8,18 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 public class FallingCheckService extends Service implements SensorEventListener {
     public FallingCheckService() {
     }
 
     private SensorManager sensorManager;
-    private Sensor mSensor, lSensor;
+    private Sensor accelSensor;
     private float[] mGravity;
-    private float mAccel;
-    private float mAccelCurrent;
-    private float mAccelLast;
+    private float accelPivot;
+    private float accelCurrentNormal;
+    private float accelCurrent;
+    private float accelLast;
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -28,60 +28,56 @@ public class FallingCheckService extends Service implements SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d("onSensorChanged", "Last Accel: " + mAccelLast);
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             mGravity = event.values.clone();
 
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
 
-            float x1 = event.values[0];
-            float y1 = event.values[1];
-            float z1 = event.values[2];
+            accelLast = 0.5f * accelLast + 0.5f * accelCurrent;
+            accelCurrentNormal = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+            accelCurrent = (float) Math.sqrt(Math.pow(x, 2) + 1.75 * Math.pow(y, 2) + 0.25 * Math.pow(z, 2));
 
-            mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+            float delta = accelCurrent - accelLast;
+            accelPivot = accelPivot * 0.9f + delta;
+            //Log.d("움직임 감지", "x: " + x + " / y: " + y + " / z: " + z + " / 직전: " + accelLast + " / 측정 (실제): " + accelCurrent + " (" + accelCurrentNormal + ") / 피벗: " + accelPivot);
 
-            float delta = mAccelCurrent - mAccelLast;
-
-            mAccel = mAccel * 0.9f + delta;
-
-            if (mAccel >= 3) {
-                Log.d("Movement Detected", "mAccel data is over than 3.");
+            if (delta >= 10 && accelCurrent > accelCurrentNormal) {
+                Log.d("낙상 인식", "직전 가속도: " + accelLast + " / 측정 가속도 (실제): " + accelCurrent + " (" + accelCurrentNormal + ") / 가속도 피벗: " + accelPivot);
             }
-        } else {
-            Log.d("End of sensor", "New Accel: " + mAccelCurrent);
         }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        // If a Context object is needed, call getApplicationContext() here.
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);       // get an instance of the SensorManager class, lets us access sensors.
-        mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);    // get Accelerometer sensor from the list of sensors.
-        lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);            // get light sensor from the list of sensors.
-        sensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-        mAccel = 0.00f;
-        mAccelCurrent = SensorManager.GRAVITY_EARTH;
-        mAccelLast = SensorManager.GRAVITY_EARTH;
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        //lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        accelPivot = 0.00f;
+        accelCurrentNormal = SensorManager.GRAVITY_EARTH;
+        accelCurrent = SensorManager.GRAVITY_EARTH;
+        accelLast = SensorManager.GRAVITY_EARTH;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);       // get an instance of the SensorManager class, lets us access sensors.
-        mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);    // get Accelerometer sensor from the list of sensors.
-        lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);            // get light sensor from the list of sensors.
-        sensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        //lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-        mAccel = 0.00f;
-        mAccelCurrent = SensorManager.GRAVITY_EARTH;
-        mAccelLast = SensorManager.GRAVITY_EARTH;
+        accelPivot = 0.00f;
+        accelCurrentNormal = SensorManager.GRAVITY_EARTH;
+        accelCurrent = SensorManager.GRAVITY_EARTH;
+        accelLast = SensorManager.GRAVITY_EARTH;
 
         return START_STICKY;
     }

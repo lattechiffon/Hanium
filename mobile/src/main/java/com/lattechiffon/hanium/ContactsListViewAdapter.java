@@ -1,12 +1,14 @@
 package com.lattechiffon.hanium;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
 
@@ -40,6 +42,16 @@ class ContactsListViewAdapter extends BaseAdapter {
         nameTextView.setText(listViewItem.getName());
         phoneTextView.setText(listViewItem.getPhone());
 
+        if (listViewItem.getProtector()) {
+            nameTextView.setTextColor(Color.parseColor("#FFFFFF"));
+            phoneTextView.setTextColor(Color.parseColor("#FFFFFF"));
+            convertView.setBackgroundResource(R.color.colorAccent);
+        } else {
+            nameTextView.setTextColor(Color.parseColor("#000000"));
+            phoneTextView.setTextColor(Color.parseColor("#666666"));
+            convertView.setBackgroundResource(R.color.colorPrimary);
+        }
+
         return convertView;
     }
 
@@ -53,11 +65,13 @@ class ContactsListViewAdapter extends BaseAdapter {
         return listViewItemList.get(position);
     }
 
-    void addItem(String name, String phone) {
+    void addItem(int no, String name, String phone, boolean protector) {
         ContactsListViewItem item = new ContactsListViewItem();
 
+        item.setNo(no);
         item.setName(name);
         item.setPhone(phone);
+        item.setProtector(protector);
 
         listViewItemList.add(item);
     }
@@ -70,6 +84,11 @@ class ContactsListViewAdapter extends BaseAdapter {
 
     public void remove(Object item) {
         listViewItemList.remove(item);
+        this.notifyDataSetChanged();
+    }
+
+    public void clear() {
+        listViewItemList.clear();
         this.notifyDataSetChanged();
     }
 }

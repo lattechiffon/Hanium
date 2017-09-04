@@ -2,7 +2,7 @@
 
     <!-- 기본 -->
 
-    <string name="app_name">낙상 인식 알리미</string>
+    <string name="app_name">워치미</string>
     <string name="app_version_code">1</string>
     <string name="toast_exit">한 번 더 누르면 앱이 종료됩니다.</string>
 
@@ -66,7 +66,7 @@
 
     <string name="pref_header_information">정보</string>
     <string name="pref_app_version">앱 버전: v 0.1</string>
-    <string name="pref_developer">기획/개발: DoIT (세종대학교 컴퓨터공학과)</string>
+    <string name="pref_developer">기획/개발: doIT (세종대학교 컴퓨터공학과)</string>
     <string name="pref_mentor">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
     <string name="pref_project">2017 한이음 공모전 출품 앱</string>
     <string name="pref_open_source_license">오픈 소스 라이선스</string>

@@ -4,22 +4,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.lattechiffon.hanium.SplashActivity">
 
-    <!--<ImageView
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/background"
-        android:scaleType="centerCrop"/>-->
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:id="@+id/deviceRegisterTitle"
-        android:text="낙상 인식 알리미"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:textColor="#ff000000"/>
+        android:src="@drawable/logo"
+        android:scaleType="centerInside"/>
 
 </RelativeLayout>

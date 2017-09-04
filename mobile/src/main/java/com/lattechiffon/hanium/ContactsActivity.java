@@ -7,8 +7,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -33,7 +35,10 @@ public class ContactsActivity extends AppCompatActivity {
     BackgroundTask task;
 
     ListView listView;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     ContactsListViewAdapter adapter;
+
+    DatabaseHelper databaseHelper;
 
     public ContactsActivity() {
         // Required empty public constructor
@@ -48,6 +53,18 @@ public class ContactsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.activity_contacts));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        databaseHelper = new DatabaseHelper(getApplicationContext());
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.contacts_swipe_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.clear();
+                task = new BackgroundTask();
+                task.execute();
+            }
+        });
 
         adapter = new ContactsListViewAdapter();
 
@@ -72,9 +89,13 @@ public class ContactsActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
-            progressDialog.setMessage("이용자 데이터 처리 중입니다.");
-            progressDialog.show();
+            if (mSwipeRefreshLayout.isRefreshing() == false) {
+                progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+                progressDialog.setMessage("이용자 데이터 처리 중입니다.");
+                progressDialog.setCancelable(false);
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.show();
+            }
         }
 
         @Override
@@ -102,27 +123,41 @@ public class ContactsActivity extends AppCompatActivity {
         protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
 
-            progressDialog.dismiss();
+            if (mSwipeRefreshLayout.isRefreshing() == false) {
+                progressDialog.dismiss();
+            }
 
             try {
                 JSONObject json = new JSONObject(a.body().string());
 
                 if (json.getString("count").equals("0")) {
-                    adapter.addItem("서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.");
+                    adapter.addItem(0, "서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.", false);
                 } else {
                     JSONArray user = json.getJSONArray(("user"));
 
                     for (int i = 0; i < user.length(); i++) {
                         JSONObject userObject = user.getJSONObject(i);
-                        adapter.addItem(userObject.getString("name"), userObject.getString("phone"));
+
+                        boolean protector = false;
+
+                        if (databaseHelper.checkProtector(userObject.getInt("no"))) {
+                            protector = true;
+                        }
+
+                        adapter.addItem(userObject.getInt("no"), userObject.getString("name"), userObject.getString("phone"), protector);
                     }
 
                 }
             } catch (Exception e) {
-                adapter.addItem("알 수 없는 오류가 발생했습니다.", "새로고침하여 다시 리스트를 가져와주세요.");
+                adapter.addItem(0, "알 수 없는 오류가 발생했습니다.", "새로고침하여 다시 리스트를 가져와주세요.", false);
             }
 
             adapter.notifyDataSetChanged();
+
+            if (mSwipeRefreshLayout.isRefreshing() == true) {
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -166,10 +201,15 @@ public class ContactsActivity extends AppCompatActivity {
         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
             ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
 
-            String name = item.getName();
-            String phone = item.getPhone();
+            if (item.getNo() == 0 || !item.getProtector()) {
+                return true;
+            }
 
-            Toast.makeText(ContactsActivity.this, "이렇게 길게 누르면 " + name + " 님을 응급 알림 보호자에서 해제할 지의 여부를 묻습니다.", Toast.LENGTH_LONG).show();
+            databaseHelper.insert("UPDATE CONTACTS SET valid = 0 WHERE userNo = " + item.getNo() + " AND valid = 1;");
+            item.setProtector(false);
+
+            Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자에서 해제하였습니다.", Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
 
             return true;
         }
@@ -180,12 +220,17 @@ public class ContactsActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
             ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
 
-            String name = item.getName();
-            String phone = item.getPhone();
+            if (item.getNo() == 0 || item.getProtector()) {
+                return;
+            }
 
-            Toast.makeText(ContactsActivity.this, "이렇게 한 번 누르면 " + name + " 님을 낙상 응급 알림 보호자로 지정합니다.", Toast.LENGTH_LONG).show();
-            //Intent intent = new Intent(getContext(), UserInfoScrollingActivity.class);
-            //startActivity(intent);
+            String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
+
+            databaseHelper.insert("INSERT INTO CONTACTS(userNo, name, phone, date, valid) VALUES (" + item.getNo() + ", '" + item.getName() + "', '" + item.getPhone() + "', '" + currentDate + "', 1);");
+            item.setProtector(true);
+
+            Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자로 지정하였습니다.", Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
         }
     };
 
