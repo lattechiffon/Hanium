@@ -42,7 +42,6 @@ public class FallingCheckService extends Service implements SensorEventListener 
 
             float delta = accelCurrent - accelLast;
             accelPivot = accelPivot * 0.9f + delta;
-            //Log.d("움직임 감지", "x: " + x + " / y: " + y + " / z: " + z + " / 직전: " + accelLast + " / 측정 (실제): " + accelCurrent + " (" + accelCurrentNormal + ") / 피벗: " + accelPivot);
 
             if (delta >= 10 && accelCurrent > accelCurrentNormal) {
                 Log.d("낙상 인식", "직전 가속도: " + accelLast + " / 측정 가속도 (실제): " + accelCurrent + " (" + accelCurrentNormal + ") / 가속도 피벗: " + accelPivot);
@@ -56,9 +55,7 @@ public class FallingCheckService extends Service implements SensorEventListener 
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        //lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         accelPivot = 0.00f;
         accelCurrentNormal = SensorManager.GRAVITY_EARTH;
@@ -70,9 +67,7 @@ public class FallingCheckService extends Service implements SensorEventListener 
     public int onStartCommand(Intent intent, int flags, int startId){
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        //lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        //sensorManager.registerListener(this, lSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         accelPivot = 0.00f;
         accelCurrentNormal = SensorManager.GRAVITY_EARTH;

@@ -104,6 +104,10 @@ public class ContactsActivity extends AppCompatActivity {
             OkHttpClient client = new OkHttpClient();
             jsonObject = getContactsList();
 
+            if (jsonObject == null) {
+                return null;
+            }
+
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
 
             Request request = new Request.Builder()
@@ -125,6 +129,18 @@ public class ContactsActivity extends AppCompatActivity {
 
             if (mSwipeRefreshLayout.isRefreshing() == false) {
                 progressDialog.dismiss();
+            }
+
+            if (a == null) {
+                adapter.addItem(0, "기기에 등록된 연락처가 없습니다.", "보호자를 등록하려면 하나 이상의 연락처를 먼저 등록하여야 합니다.", false);
+                adapter.notifyDataSetChanged();
+
+                if (mSwipeRefreshLayout.isRefreshing() == true) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+                }
+
+                return;
             }
 
             try {
