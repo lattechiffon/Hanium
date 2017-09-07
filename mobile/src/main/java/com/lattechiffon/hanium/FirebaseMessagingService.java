@@ -13,8 +13,12 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
     //private static final String TAG = "FirebaseMsgService";
@@ -22,10 +26,35 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        sendNotification(remoteMessage.getData().get("message")); // 푸쉬 알림 발생
+        sendEmergencyNotification(remoteMessage.getData().get("message"));
     }
 
-    private void sendNotification(String messageBody) {
+    private void sendEmergencyNotification(String messageBody) {
+        Intent intent = new Intent();
+        intent.setClass(getApplicationContext(), ProtectorNotificationActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            JSONObject json = new JSONObject(messageBody);
+
+            intent.putExtra("user_name", json.getJSONObject("user").getString("name"));
+            intent.putExtra("user_phone", json.getJSONObject("user").getString("phone"));
+            intent.putExtra("location_longitude", json.getJSONObject("gps").getDouble("longitude"));
+            intent.putExtra("location_latitude", json.getJSONObject("gps").getDouble("latitude"));
+            intent.putExtra("location_altitude", json.getJSONObject("gps").getDouble("altitude"));
+
+            if (json.getJSONObject("beacon") != null) {
+                intent.putExtra("beacon_spot", json.getJSONObject("beacon").getString("spot"));
+                intent.putExtra("beacon_distance", json.getJSONObject("beacon").getInt("distance"));
+            }
+        } catch (JSONException e) {
+            return;
+        }
+
+        startActivity(intent);
+    }
+
+    private void sendNewsNotification(String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -65,7 +94,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
             PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 
             wl.acquire(5000);
-        }
+    }
 
         notificationManager.notify(2017, notificationBuilder.build());
     }

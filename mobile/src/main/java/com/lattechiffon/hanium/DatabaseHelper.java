@@ -54,6 +54,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public String[] selectProtectorAll() {
+        SQLiteDatabase db = getReadableDatabase();
+        int count = 0;
+
+        Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE valid = 1 ORDER BY no DESC;", null);
+
+        int resultCount = cursor.getCount();
+
+        if (resultCount == 0) {
+            String[] retStr = new String[1];
+
+            retStr[0] = "0";
+
+            return retStr;
+        }
+
+        String[] retStr = new String[resultCount];
+
+        while (cursor.moveToNext()) {
+            retStr[count] = "" + cursor.getInt(1);
+
+            count ++;
+        }
+
+        return retStr;
+    }
+
     public String[][] selectFallingRecordAll() {
         SQLiteDatabase db = getReadableDatabase();
         //String retStr[][] = { new String[4] };

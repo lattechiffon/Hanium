@@ -18,7 +18,14 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.ramotion.foldingcell.FoldingCell;
 import com.unstoppable.submitbuttonview.SubmitButton;
 
 import java.io.IOException;
@@ -28,23 +35,25 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-public class ProtectorNotificationActivity extends AppCompatActivity {
+public class ProtectorNotificationActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private GoogleMap googleMap;
     boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
-    int timerCount;
 
-    LocationManager locationManager;
+    Intent intent;
     Vibrator vibrator;
 
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
-    TextView infoText;
+    TextView nameTextView, locationTextView, locationDetailTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_protector_notification);
+
+        intent = getIntent();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.activity_emergency));
@@ -54,118 +63,37 @@ public class ProtectorNotificationActivity extends AppCompatActivity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        final SubmitButton stopButton = (SubmitButton) findViewById(R.id.stopButton);
-        infoText = (TextView) findViewById(R.id.emergencyInfo);
-        timerCount = 10;
-
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopButton.doResult(true);
-
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = new Intent();
-                                intent.setClass(ProtectorNotificationActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
-
-                                //startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                //DeviceRegisterActivity.this.finish();
-                            }
-                        }, 1500);
-
-                    }
-                }, 2000);
-            }
-        });
-
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500};
-        vibrator.vibrate(pattern, -1);
+        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500};
+        vibrator.vibrate(pattern, 6);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        nameTextView = (TextView) findViewById(R.id.protector_cell_header_name);
+        nameTextView.setText(intent.getStringExtra("user_name") + " 님");
 
-        // ToDo: 사용자가 비콘 지역 내에 존재하는 경우 아래의 GPS를 통한 위치 정보는 가져오지 않도록 수정한다.
+        locationTextView = (TextView) findViewById(R.id.content_body_address);
+        locationTextView.setText(intent.getStringExtra("location_latitude") + " / " + intent.getStringExtra("location_longitude"));
 
-        /* GPS 데이터 호출 : 원칙적으로 네트워크 제공자와 GPS 데이터를 동시에 가져온다. */
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, // 등록할 위치제공자
-                    100, // 통지사이의 최소 시간간격 (mSec)
-                    1, // 통지사이의 최소 변경거리 (m)
-                    mLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
-                    100, // 통지사이의 최소 시간간격 (mSec)
-                    1, // 통지사이의 최소 변경거리 (m)
-                    mLocationListener);
-        } catch (SecurityException e) {
-
-        }
-
-        delayTimer.sendEmptyMessage(0);
+        locationDetailTextView = (TextView) findViewById(R.id.content_detail_address);
     }
 
-    Handler delayTimer = new Handler() {
-        public void handleMessage(Message msg) {
-            if (!pref.getBoolean("fall", false)) {
-                vibrator.cancel();
-                locationManager.removeUpdates(mLocationListener);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
 
-                editor.putBoolean("fall", false);
-                editor.commit();
-
-                finish();
-            } else {
-                infoText.setText(timerCount + "초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.");
-
-                if (timerCount-- > 0) {
-                    delayTimer.sendEmptyMessageDelayed(0, 1000);
-                } else {
-                    locationManager.removeUpdates(mLocationListener);
-                    Toast.makeText(ProtectorNotificationActivity.this, "등록된 모든 보호자에게 응급 푸쉬가 발송되었습니다.", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    };
-
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            double longitude = location.getLongitude(); // 경도
-            double latitude = location.getLatitude();   // 위도
-            double altitude = location.getAltitude();   // 고도
-            float accuracy = location.getAccuracy();    // 정확도
-            String provider = location.getProvider();   // 위치 제공자
-
-            Toast.makeText(getApplicationContext(), "위치 정보를 가져오고 있습니다.", Toast.LENGTH_LONG).show();
-
-            //Toast.makeText(getApplicationContext(), "위치정보 : " + provider + "\n위도 : " + longitude + "\n경도 : " + latitude + "\n고도 : " + altitude + "\n정확도 : "  + accuracy, Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-    };
+        LatLng fallLocation = new LatLng(intent.getDoubleExtra("location_latitude", 0), intent.getDoubleExtra("location_longitude", 0));
+        this.googleMap.addMarker(new MarkerOptions().position(fallLocation).title("낙상사고 발생 지점"));
+        this.googleMap.moveCamera(CameraUpdateFactory.zoomTo(17.0f));
+        this.googleMap.moveCamera(CameraUpdateFactory.newLatLng(fallLocation));
+        this.googleMap.setMinZoomPreference(6.0f);
+        this.googleMap.setMaxZoomPreference(20.0f);
+    }
 
     @Override
     public void onBackPressed() {
@@ -187,51 +115,5 @@ public class ProtectorNotificationActivity extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
-    }
-
-    private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
-
-        String name;
-        String phone;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            name = "테스트";
-        }
-
-        @Override
-        protected okhttp3.Response doInBackground(String... arg0) {
-            OkHttpClient client = new OkHttpClient();
-            RequestBody body = new FormBody.Builder()
-                    .add("name", name)
-                    .add("phone", FirebaseInstanceId.getInstance().getToken())
-                    .add("token", FirebaseInstanceId.getInstance().getToken())
-                    .build();
-
-            Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/register.php")
-                    .post(body)
-                    .build();
-
-            try {
-                return client.newCall(request).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(okhttp3.Response a) {
-            super.onPostExecute(a);
-            try {
-                Toast.makeText(ProtectorNotificationActivity.this, "" + a.body().string(), Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-
-            }
-        }
     }
 }

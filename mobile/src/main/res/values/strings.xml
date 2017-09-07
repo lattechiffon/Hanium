@@ -9,7 +9,7 @@
     <string name="activity_main_recent_data">최근 낙상 감지 기록</string>
     <string name="activity_device_register">기기 등록</string>
     <string name="activity_contacts">응급 알림 보호자 지정</string>
-    <string name="activity_emergency">낙상 응급 알림</string>
+    <string name="activity_emergency">워치미 : 낙상사고 발생 알림</string>
     <string name="activity_settings">설정</string>
 
     <string name="main_toast_list_refresh">새로운 데이터를 성공적으로 가져왔습니다.</string>

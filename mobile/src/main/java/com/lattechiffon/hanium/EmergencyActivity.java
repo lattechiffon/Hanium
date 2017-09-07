@@ -1,9 +1,11 @@
 package com.lattechiffon.hanium;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,8 +14,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -25,11 +29,16 @@ import com.estimote.coresdk.service.BeaconManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.unstoppable.submitbuttonview.SubmitButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -37,6 +46,7 @@ import okhttp3.RequestBody;
 public class EmergencyActivity extends AppCompatActivity {
 
     int timerCount;
+    int protectorCount;
 
     BackgroundTask task;
     LocationManager locationManager;
@@ -56,6 +66,8 @@ public class EmergencyActivity extends AppCompatActivity {
 
     String provider;
 
+    DatabaseHelper databaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +80,8 @@ public class EmergencyActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+        databaseHelper = new DatabaseHelper(getApplicationContext());
 
         beaconManager = new BeaconManager(getApplicationContext());
 
@@ -181,9 +195,12 @@ public class EmergencyActivity extends AppCompatActivity {
                     delayTimer.sendEmptyMessageDelayed(0, 1000);
                 } else {
                     locationManager.removeUpdates(mLocationListener);
+
+                    editor.putBoolean("fall", false);
+                    editor.commit();
+
                     task = new BackgroundTask();
                     task.execute();
-                    Toast.makeText(EmergencyActivity.this, "등록된 모든 보호자에게 응급 푸쉬가 발송되었습니다.", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -219,42 +236,31 @@ public class EmergencyActivity extends AppCompatActivity {
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
-        String name;
-        String phone;
+        ProgressDialog progressDialog = new ProgressDialog(EmergencyActivity.this);
+        JSONObject jsonObject;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            name = userPref.getString("name", "error");
-            phone = userPref.getString("phone", "error");
+            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            progressDialog.setMessage("지정된 모든 보호자에게 낙상사고를 알리는 중입니다.");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
         }
 
         @Override
         protected okhttp3.Response doInBackground(String... arg0) {
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             OkHttpClient client = new OkHttpClient();
-            RequestBody body;
+            jsonObject = getProtectorList();
 
-            if (pref.getBoolean("beacon", false)) {
-                body = new FormBody.Builder()
-                        .add("name", name)
-                        .add("phone", phone)
-                        .add("longitude", longitude + "")
-                        .add("latitude", latitude + "")
-                        .add("altitude", altitude + "")
-                        .add("beacon", "true")
-                        .add("distance", beaconDistance + "")
-                        .build();
-            } else {
-                body = new FormBody.Builder()
-                        .add("name", name)
-                        .add("phone", phone)
-                        .add("longitude", longitude + "")
-                        .add("latitude", latitude + "")
-                        .add("altitude", altitude + "")
-                        .add("beacon", "false")
-                        .build();
+            if (jsonObject == null) {
+                return null;
             }
+
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
 
             Request request = new Request.Builder()
                     .url("http://www.lattechiffon.com/hanium/send_notification.php")
@@ -267,18 +273,73 @@ public class EmergencyActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return null;
             }
-
         }
 
         @Override
         protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
-            try {
-                Toast.makeText(EmergencyActivity.this, "" + a.body().string(), Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
 
+            progressDialog.dismiss();
+
+            if (a == null) {
+                Toast.makeText(EmergencyActivity.this, "오류가 발생하였습니다.", Toast.LENGTH_LONG).show();
+
+                return;
             }
+
+            Toast.makeText(EmergencyActivity.this, "지정된 모든 보호자에게 낙상사고 발생을 통보하였습니다.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private JSONObject getProtectorList() {
+        final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+
+        String[] data = databaseHelper.selectProtectorAll();
+
+        protectorCount = data.length;
+
+        if (protectorCount == 0) {
+            return null;
+        }
+
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            JSONArray jsonProtectorArray = new JSONArray();
+            for (int i = 0; i < protectorCount; i++) {
+                JSONObject jsonDataObject = new JSONObject();
+
+                jsonDataObject.put("no", data[i]);
+                jsonProtectorArray.put(jsonDataObject);
+            }
+
+            jsonObject.put("protector", jsonProtectorArray);
+
+            JSONObject jsonDataObject = new JSONObject();
+
+            jsonDataObject.put("name", userPref.getString("name", "null"));
+            jsonDataObject.put("phone", userPref.getString("phone", "null"));
+            jsonObject.put("user", jsonDataObject);
+
+            JSONObject jsonLocationDataObject = new JSONObject();
+
+            jsonLocationDataObject.put("longitude", longitude);
+            jsonLocationDataObject.put("latitude", latitude);
+            jsonLocationDataObject.put("altitude", altitude);
+            jsonObject.put("gps", jsonLocationDataObject);
+
+            if (pref.getBoolean("beacon", false)) {
+                JSONObject jsonBeaconDataObject = new JSONObject();
+
+                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "home"));
+                jsonBeaconDataObject.put("distance", beaconDistance);
+                jsonObject.put("beacon", jsonBeaconDataObject);
+            }
+        } catch (JSONException e) {
+            return null;
+        }
+
+        return jsonObject;
     }
 
     @Override

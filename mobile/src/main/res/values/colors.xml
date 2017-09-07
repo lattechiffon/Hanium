@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#FFFFFF</color>
     <color name="colorPrimaryDarkUnderSDK23">#000000</color>
     <color name="colorAccent">#19CC95</color>
+    <color name="contentDividerLine">#e0e0e0</color>
 </resources>
