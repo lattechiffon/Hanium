@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.app.ActivityCompat;
@@ -17,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -28,19 +25,23 @@ import com.ramotion.foldingcell.FoldingCell;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
-import org.w3c.dom.Text;
-
+/**
+ * 애플리케이션 초기 화면을 담당하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class MainActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_CONTACTS = 2;
-    boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
-    SharedPreferences pref;
 
-    int listItemDataCount;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private FallingRecordListViewAdapter adapter;
+    private SharedPreferences pref;
 
-    ListView listView;
-    TextView countTextView, welcomeTextView;
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    FallingRecordListViewAdapter adapter;
+    private ListView listView;
+    private TextView countTextView, welcomeTextView;
+
+    private boolean doubleBackToExitPressedOnce = false;
+    private int listItemDataCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
         final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.clear();
@@ -97,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button newContactsButton = (Button) findViewById(R.id.newContactsButton);
-
         newContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -183,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
-        if (mSwipeRefreshLayout.isRefreshing() == true) {
-            mSwipeRefreshLayout.setRefreshing(false);
+        if (swipeRefreshLayout.isRefreshing() == true) {
+            swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(MainActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
         }
 

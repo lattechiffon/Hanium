@@ -16,11 +16,16 @@ import com.estimote.coresdk.service.BeaconManager;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 애플리케이션 최초 설치 및 실행 시점에 수행되는 클래스입니다.
+ * 백그라운드에서 비콘을 모니터링하는 서비스가 활성화됩니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class BeaconApplication extends Application {
-
     private BeaconManager beaconManager;
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     @Override
     public void onCreate() {
@@ -37,7 +42,6 @@ public class BeaconApplication extends Application {
                         34378, 4469));
             }
         });
-
         beaconManager.setMonitoringListener(new BeaconManager.BeaconMonitoringListener() {
             @Override
             public void onEnteredRegion(BeaconRegion beaconRegion, List<Beacon> list) {
@@ -48,7 +52,7 @@ public class BeaconApplication extends Application {
 
                 if (!pref.getBoolean("beacon", false)) {
                     editor.putBoolean("beacon", true);
-                    editor.commit();
+                    editor.apply();
                 }
             }
 
@@ -61,7 +65,7 @@ public class BeaconApplication extends Application {
 
                 if (pref.getBoolean("beacon", false)) {
                     editor.putBoolean("beacon", false);
-                    editor.commit();
+                    editor.apply();
                 }
             }
         });

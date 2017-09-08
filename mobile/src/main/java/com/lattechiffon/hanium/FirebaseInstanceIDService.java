@@ -10,27 +10,26 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * Firebase Cloud Message(FCM) 토큰 발급을 담당하는 서비스 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class FirebaseInstanceIDService extends FirebaseInstanceIdService {
-
-    //private static final String TAG = "FirebaseIIDService";
+    // private static final String TAG = "FirebaseIIDService";
 
     @Override
     public void onTokenRefresh() {
-        String token = FirebaseInstanceId.getInstance().getToken(); // 새로운 Token 할당
-        // Log.d(TAG, "Refreshed token: " + token);
+        String token = FirebaseInstanceId.getInstance().getToken();
 
-        //sendRegistrationToServer(token); // 서버 등록
+        // sendRegistrationToServer(token);
     }
 
     private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
-
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
                 .add("Token", token)
                 .build();
-
-        //request
         Request request = new Request.Builder()
                 .url("http://www.lattechiffon.com/gauss/app/register.php")
                 .post(body)
@@ -41,6 +40,5 @@ public class FirebaseInstanceIDService extends FirebaseInstanceIdService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

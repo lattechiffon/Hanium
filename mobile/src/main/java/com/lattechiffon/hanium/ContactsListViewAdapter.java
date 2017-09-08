@@ -2,7 +2,6 @@ package com.lattechiffon.hanium;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +11,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * 보호자 리스트 뷰를 담당하는 어댑터 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 class ContactsListViewAdapter extends BaseAdapter {
     private ArrayList<ContactsListViewItem> listViewItemList = new ArrayList<>();
-
-    ContactsListViewAdapter() {
-
-    }
 
     @Override
     public int getCount() {
@@ -26,7 +26,6 @@ class ContactsListViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
         final Context context = parent.getContext();
 
         if (convertView == null) {
@@ -76,18 +75,7 @@ class ContactsListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
-    public void updateContactsList(ArrayList<ContactsListViewItem> newlist) {
-        listViewItemList.clear();
-        listViewItemList.addAll(newlist);
-        this.notifyDataSetChanged();
-    }
-
-    public void remove(Object item) {
-        listViewItemList.remove(item);
-        this.notifyDataSetChanged();
-    }
-
-    public void clear() {
+    void clear() {
         listViewItemList.clear();
         this.notifyDataSetChanged();
     }

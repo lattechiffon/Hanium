@@ -1,5 +1,10 @@
 package com.lattechiffon.hanium;
 
+/**
+ * 낙상사고 기록 리스트 뷰를 담당하는 아이템 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 class FallingRecordListViewItem {
     private int no;
     private String datetime;

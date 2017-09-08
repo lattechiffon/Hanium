@@ -5,8 +5,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
-    public DatabaseHelper(Context context) {
+/**
+ * SQLite 데이터베이스의 쿼리 처리를 담당하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
+class DatabaseHelper extends SQLiteOpenHelper {
+    DatabaseHelper(Context context) {
         super(context, "Falling.db", null, 1);
     }
 
@@ -21,40 +26,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insert(String _query) {
+    void insert(String query) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(_query);
+        db.execSQL(query);
         db.close();
     }
 
-    public void update(String _query) {
+    void update(String query) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(_query);
+        db.execSQL(query);
         db.close();
     }
 
-    public void delete(String _query) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(_query);
-        db.close();
-    }
-
-    public boolean checkProtector(int userNo) {
+    boolean checkProtector(int userNo) {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE userNo = " + userNo + " AND valid = 1;", null);
 
         int resultCount = cursor.getCount();
 
-        if (resultCount == 1) {
-            return true;
-        }
+        cursor.close();
 
-        return false;
+        return resultCount == 1;
 
     }
 
-    public String[] selectProtectorAll() {
+    String[] selectProtectorAll() {
         SQLiteDatabase db = getReadableDatabase();
         int count = 0;
 
@@ -75,15 +72,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             retStr[count] = "" + cursor.getInt(1);
 
-            count ++;
+            count++;
         }
+
+        cursor.close();
 
         return retStr;
     }
 
-    public String[][] selectFallingRecordAll() {
+    String[][] selectFallingRecordAll() {
         SQLiteDatabase db = getReadableDatabase();
-        //String retStr[][] = { new String[4] };
         int count = 0;
 
         Cursor cursor = db.rawQuery("SELECT * FROM FALLING_RECORD WHERE valid = 1 ORDER BY no DESC;", null);
@@ -109,35 +107,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             retStr[count][2] = "" + cursor.getInt(2);
             retStr[count][3] = "" + cursor.getInt(3);
 
-            count ++;
+            count++;
         }
+
+        cursor.close();
 
         return retStr;
     }
 
-    public int selectTopNo() {
+    int selectTopNo() {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT no FROM FALLING_RECORD ORDER BY no DESC LIMIT 1;", null);
         cursor.moveToNext();
 
-        return cursor.getInt(0);
-    }
+        int retInt = cursor.getInt(9);
 
-    public String PrintData() {
-        SQLiteDatabase db = getReadableDatabase();
-        String str = "";
+        cursor.close();
 
-        Cursor cursor = db.rawQuery("select * from FOOD_LIST", null);
-        while(cursor.moveToNext()) {
-            str += cursor.getInt(0)
-                    + " : foodName "
-                    + cursor.getString(1)
-                    + ", price = "
-                    + cursor.getInt(2)
-                    + "\n";
-        }
-
-        return str;
+        return retInt;
     }
 }

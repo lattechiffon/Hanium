@@ -1,8 +1,6 @@
 package com.lattechiffon.hanium;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,23 +27,19 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * 보호자를 지정하는 기능을 제공하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class ContactsActivity extends AppCompatActivity {
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
-    BackgroundTask task;
-
-    ListView listView;
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    ContactsListViewAdapter adapter;
-
-    DatabaseHelper databaseHelper;
-
-    public ContactsActivity() {
-        // Required empty public constructor
-    }
+    private DatabaseHelper databaseHelper;
+    private ContactsListViewAdapter contactsListViewAdapter;
+    private BackgroundTask task;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
@@ -56,41 +50,78 @@ public class ContactsActivity extends AppCompatActivity {
 
         databaseHelper = new DatabaseHelper(getApplicationContext());
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.contacts_swipe_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.contacts_swipe_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                adapter.clear();
+                contactsListViewAdapter.clear();
                 task = new BackgroundTask();
                 task.execute();
             }
         });
 
-        adapter = new ContactsListViewAdapter();
+        contactsListViewAdapter = new ContactsListViewAdapter();
+        ListView listView = (ListView) findViewById(R.id.listViewContacts);
+        listView.setAdapter(contactsListViewAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
 
-        listView = (ListView) findViewById(R.id.listViewContacts);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(listener);
-        listView.setOnItemLongClickListener(longClickListener);
+                if (item.getNo() == 0 || item.getProtector()) {
+                    return;
+                }
 
-        pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
-        editor = pref.edit();
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
+
+                databaseHelper.insert("INSERT INTO CONTACTS(userNo, name, phone, date, valid) VALUES (" + item.getNo() + ", '" + item.getName() + "', '" + item.getPhone() + "', '" + currentDate + "', 1);");
+                item.setProtector(true);
+
+                Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자로 지정하였습니다.", Toast.LENGTH_SHORT).show();
+                contactsListViewAdapter.notifyDataSetChanged();
+            }
+        });
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+                ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
+
+                if (item.getNo() == 0 || !item.getProtector()) {
+                    return true;
+                }
+
+                databaseHelper.insert("UPDATE CONTACTS SET valid = 0 WHERE userNo = " + item.getNo() + " AND valid = 1;");
+                item.setProtector(false);
+
+                Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자에서 해제하였습니다.", Toast.LENGTH_SHORT).show();
+                contactsListViewAdapter.notifyDataSetChanged();
+
+                return true;
+            }
+        });
 
         task = new BackgroundTask();
         task.execute();
     }
 
+    /**
+     * 서버로부터 보호자 리스트를 가져오는 내부 클래스입니다.
+     * @version : 1.0
+     * @author  : Yongguk Go (lattechiffon@gmail.com)
+     */
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
-
-        ProgressDialog progressDialog = new ProgressDialog(ContactsActivity.this);
-        JSONObject jsonObject;
+        private ProgressDialog progressDialog = new ProgressDialog(ContactsActivity.this);
+        private JSONObject jsonObject;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            if (mSwipeRefreshLayout.isRefreshing() == false) {
-                progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            if (!swipeRefreshLayout.isRefreshing()) {
+                if (progressDialog.getWindow() != null) {
+                    progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+                }
+
                 progressDialog.setMessage("이용자 데이터 처리 중입니다.");
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
@@ -109,7 +140,6 @@ public class ContactsActivity extends AppCompatActivity {
             }
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
-
             Request request = new Request.Builder()
                     .url("http://www.lattechiffon.com/hanium/contacts_processing.php")
                     .post(body)
@@ -118,7 +148,6 @@ public class ContactsActivity extends AppCompatActivity {
             try {
                 return client.newCall(request).execute();
             } catch (IOException e) {
-                e.printStackTrace();
                 return null;
             }
         }
@@ -127,16 +156,16 @@ public class ContactsActivity extends AppCompatActivity {
         protected void onPostExecute(okhttp3.Response a) {
             super.onPostExecute(a);
 
-            if (mSwipeRefreshLayout.isRefreshing() == false) {
+            if (!swipeRefreshLayout.isRefreshing()) {
                 progressDialog.dismiss();
             }
 
             if (a == null) {
-                adapter.addItem(0, "기기에 등록된 연락처가 없습니다.", "보호자를 등록하려면 하나 이상의 연락처를 먼저 등록하여야 합니다.", false);
-                adapter.notifyDataSetChanged();
+                contactsListViewAdapter.addItem(0, "기기에 등록된 연락처가 없습니다.", "보호자를 등록하려면 하나 이상의 연락처를 먼저 등록하여야 합니다.", false);
+                contactsListViewAdapter.notifyDataSetChanged();
 
-                if (mSwipeRefreshLayout.isRefreshing() == true) {
-                    mSwipeRefreshLayout.setRefreshing(false);
+                if (swipeRefreshLayout.isRefreshing()) {
+                    swipeRefreshLayout.setRefreshing(false);
                     Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
                 }
 
@@ -147,40 +176,42 @@ public class ContactsActivity extends AppCompatActivity {
                 JSONObject json = new JSONObject(a.body().string());
 
                 if (json.getString("count").equals("0")) {
-                    adapter.addItem(0, "서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.", false);
+                    contactsListViewAdapter.addItem(0, "서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.", false);
                 } else {
                     JSONArray user = json.getJSONArray(("user"));
 
                     for (int i = 0; i < user.length(); i++) {
                         JSONObject userObject = user.getJSONObject(i);
-
                         boolean protector = false;
 
                         if (databaseHelper.checkProtector(userObject.getInt("no"))) {
                             protector = true;
                         }
 
-                        adapter.addItem(userObject.getInt("no"), userObject.getString("name"), userObject.getString("phone"), protector);
+                        contactsListViewAdapter.addItem(userObject.getInt("no"), userObject.getString("name"), userObject.getString("phone"), protector);
                     }
 
                 }
             } catch (Exception e) {
-                adapter.addItem(0, "알 수 없는 오류가 발생했습니다.", "새로고침하여 다시 리스트를 가져와주세요.", false);
+                contactsListViewAdapter.addItem(0, "알 수 없는 오류가 발생했습니다.", "새로고침하여 다시 리스트를 가져와주세요.", false);
             }
 
-            adapter.notifyDataSetChanged();
+            contactsListViewAdapter.notifyDataSetChanged();
 
-            if (mSwipeRefreshLayout.isRefreshing() == true) {
-                mSwipeRefreshLayout.setRefreshing(false);
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    /**
+     * 안드로이드 내의 주소록으로부터 모든 연락처 정보를 가져오는 메서드입니다.
+     * @return ; 주소록에 저장된 모든 연락처 정보 (구분 ID, 이름, 전하번호)
+     */
     private JSONObject getContactsList() {
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME }, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
-
-        int resultCount = cursor.getCount();
+        int resultCount = cursor != null ? cursor.getCount() : 0;
 
         if (resultCount == 0) {
             return null;
@@ -190,11 +221,14 @@ public class ContactsActivity extends AppCompatActivity {
 
         try {
             JSONArray jsonArray = new JSONArray();
+
             while (cursor.moveToNext()) {
                 String contactsId = cursor.getString(0);
-                Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactsId, null, null);
+                Cursor phoneCursor;
 
-                while (phoneCursor.moveToNext()) {
+                phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactsId, null, null);
+
+                while (phoneCursor != null && phoneCursor.moveToNext()) {
                     JSONObject jsonDataObject = new JSONObject();
 
                     jsonDataObject.put("id", contactsId);
@@ -202,58 +236,19 @@ public class ContactsActivity extends AppCompatActivity {
                     jsonDataObject.put("phone", phoneCursor.getString(0).replaceAll("-", ""));
                     jsonArray.put(jsonDataObject);
                 }
+
+                if (phoneCursor != null) {
+                    phoneCursor.close();
+                }
             }
 
+            cursor.close();
             jsonObject.put("user", jsonArray);
         } catch (JSONException e) {
             return null;
         }
 
         return jsonObject;
-    }
-
-    AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-            ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
-
-            if (item.getNo() == 0 || !item.getProtector()) {
-                return true;
-            }
-
-            databaseHelper.insert("UPDATE CONTACTS SET valid = 0 WHERE userNo = " + item.getNo() + " AND valid = 1;");
-            item.setProtector(false);
-
-            Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자에서 해제하였습니다.", Toast.LENGTH_SHORT).show();
-            adapter.notifyDataSetChanged();
-
-            return true;
-        }
-    };
-
-    AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-            ContactsListViewItem item = (ContactsListViewItem) adapterView.getItemAtPosition(position);
-
-            if (item.getNo() == 0 || item.getProtector()) {
-                return;
-            }
-
-            String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
-
-            databaseHelper.insert("INSERT INTO CONTACTS(userNo, name, phone, date, valid) VALUES (" + item.getNo() + ", '" + item.getName() + "', '" + item.getPhone() + "', '" + currentDate + "', 1);");
-            item.setProtector(true);
-
-            Toast.makeText(ContactsActivity.this, item.getName()+ " 님을 보호자로 지정하였습니다.", Toast.LENGTH_SHORT).show();
-            adapter.notifyDataSetChanged();
-        }
-    };
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(R.anim.slide_enter, R.anim.slide_exit);
     }
 
     @Override
@@ -267,5 +262,11 @@ public class ContactsActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.slide_enter, R.anim.slide_exit);
     }
 }

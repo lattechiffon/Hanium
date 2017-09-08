@@ -10,12 +10,16 @@ import com.google.android.gms.wearable.WearableListenerService;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * 웨어 디바이스로부터 데이터를 수신하는 기능을 담당하는 서비스 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class WearCallListenerService extends WearableListenerService {
-
     public static String SERVICE_CALLED_WEAR = "WearFallRecognition";
 
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
@@ -27,7 +31,6 @@ public class WearCallListenerService extends WearableListenerService {
         editor = pref.edit();
 
         String event = messageEvent.getPath();
-
         String [] message = event.split("--");
 
         if (message[0].equals(SERVICE_CALLED_WEAR)) {
@@ -35,7 +38,7 @@ public class WearCallListenerService extends WearableListenerService {
                 case "fall":
                     if (!pref.getBoolean("fall", false)) {
                         editor.putBoolean("fall", true);
-                        editor.commit();
+                        editor.apply();
 
                         String currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(System.currentTimeMillis()));
 
@@ -47,7 +50,7 @@ public class WearCallListenerService extends WearableListenerService {
                         startActivity(intent);
                     } else {
                         editor.putBoolean("fall", false);
-                        editor.commit();
+                        editor.apply();
                     }
 
                     break;
@@ -63,9 +66,6 @@ public class WearCallListenerService extends WearableListenerService {
 
                     break;
             }
-
-            //startActivity(new Intent((Intent) SplashActivity.getInstance().tutorials.get(message[1]))
-                    //.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
 }

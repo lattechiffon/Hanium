@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,9 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,7 +23,6 @@ import android.widget.Toast;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
 import com.estimote.coresdk.recognition.packets.Beacon;
 import com.estimote.coresdk.service.BeaconManager;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.unstoppable.submitbuttonview.SubmitButton;
 
 import org.json.JSONArray;
@@ -37,36 +33,32 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * 낙상사고 발생 감지 시 이용자에게 통지하는 기능을 담당하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class EmergencyActivity extends AppCompatActivity {
-
-    int timerCount;
-    int protectorCount;
-
-    BackgroundTask task;
-    LocationManager locationManager;
+    private LocationManager locationManager;
     private BeaconManager beaconManager;
-    Vibrator vibrator;
+    private Vibrator vibrator;
+    private BackgroundTask task;
+    private SharedPreferences pref, userPref;
+    private SharedPreferences.Editor editor;
 
-    SharedPreferences pref, userPref;
-    SharedPreferences.Editor editor;
+    private SubmitButton stopButton;
+    private TextView infoText;
 
-    TextView infoText;
-    SubmitButton stopButton;
-
-    BeaconRegion beaconRegion;
-    int beaconDistance;
-    double longitude, latitude, altitude;
-    float accuracy;
-
-    String provider;
-
-    DatabaseHelper databaseHelper;
+    private BeaconRegion beaconRegion;
+    private int timerCount, protectorCount, beaconDistance;
+    private double longitude, latitude;
+    private float accuracy;
+    private String provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +73,19 @@ public class EmergencyActivity extends AppCompatActivity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
-        databaseHelper = new DatabaseHelper(getApplicationContext());
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        while (true) {
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, locationListener);
+
+                break;
+            } catch (SecurityException ignored) {
+            }
+        }
 
         beaconManager = new BeaconManager(getApplicationContext());
-
         beaconManager.setRangingListener(new BeaconManager.BeaconRangingListener() {
             @Override
             public void onBeaconsDiscovered(BeaconRegion region, List<Beacon> list) {
@@ -94,7 +95,6 @@ public class EmergencyActivity extends AppCompatActivity {
                 }
             }
         });
-
         beaconRegion = new BeaconRegion(
                 "monitored region",
                 UUID.fromString("b9407f30-f5f8-466e-aff9-25556b57fe6d"),
@@ -104,10 +104,11 @@ public class EmergencyActivity extends AppCompatActivity {
         userPref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        stopButton = (SubmitButton) findViewById(R.id.stopButton);
-        infoText = (TextView) findViewById(R.id.emergencyInfo);
-        timerCount = 15;
+        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(pattern, -1);
 
+        stopButton = (SubmitButton) findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -135,22 +136,8 @@ public class EmergencyActivity extends AppCompatActivity {
                 }, 2000);
             }
         });
-
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
-        vibrator.vibrate(pattern, -1);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        while (true) {
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, mLocationListener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, mLocationListener);
-                break;
-            } catch (SecurityException e) {
-                continue;
-            }
-        }
+        infoText = (TextView) findViewById(R.id.emergencyInfo);
+        timerCount = 15;
 
         delayTimer.sendEmptyMessage(0);
     }
@@ -158,11 +145,9 @@ public class EmergencyActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
               @Override
-              public void onServiceReady() {
-                  beaconManager.startRanging(beaconRegion);
+              public void onServiceReady() {beaconManager.startRanging(beaconRegion);
               }
           });
     }
@@ -170,18 +155,17 @@ public class EmergencyActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         beaconManager.stopRanging(beaconRegion);
-
         super.onPause();
     }
 
-    Handler delayTimer = new Handler() {
+    private Handler delayTimer = new Handler() {
         public void handleMessage(Message msg) {
             if (!pref.getBoolean("fall", false)) {
                 vibrator.cancel();
-                locationManager.removeUpdates(mLocationListener);
+                locationManager.removeUpdates(locationListener);
 
                 editor.putBoolean("fall", false);
-                editor.commit();
+                editor.apply();
 
                 finish();
             } else {
@@ -194,10 +178,10 @@ public class EmergencyActivity extends AppCompatActivity {
                 if (timerCount-- > 0) {
                     delayTimer.sendEmptyMessageDelayed(0, 1000);
                 } else {
-                    locationManager.removeUpdates(mLocationListener);
+                    locationManager.removeUpdates(locationListener);
 
                     editor.putBoolean("fall", false);
-                    editor.commit();
+                    editor.apply();
 
                     task = new BackgroundTask();
                     task.execute();
@@ -206,12 +190,11 @@ public class EmergencyActivity extends AppCompatActivity {
         }
     };
 
-    private final LocationListener mLocationListener = new LocationListener() {
+    private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            longitude = location.getLongitude(); // 경도
-            latitude = location.getLatitude();   // 위도
-            altitude = location.getAltitude();   // 고도
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
             accuracy = location.getAccuracy();
             provider = location.getProvider();
 
@@ -235,15 +218,17 @@ public class EmergencyActivity extends AppCompatActivity {
     };
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
-
-        ProgressDialog progressDialog = new ProgressDialog(EmergencyActivity.this);
-        JSONObject jsonObject;
+        private ProgressDialog progressDialog = new ProgressDialog(EmergencyActivity.this);
+        private JSONObject jsonObject;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            }
+
             progressDialog.setMessage("지정된 모든 보호자에게 낙상사고를 알리는 중입니다.");
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
@@ -261,7 +246,6 @@ public class EmergencyActivity extends AppCompatActivity {
             }
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
-
             Request request = new Request.Builder()
                     .url("http://www.lattechiffon.com/hanium/send_notification.php")
                     .post(body)
@@ -270,7 +254,6 @@ public class EmergencyActivity extends AppCompatActivity {
             try {
                 return client.newCall(request).execute();
             } catch (IOException e) {
-                e.printStackTrace();
                 return null;
             }
         }
@@ -293,7 +276,6 @@ public class EmergencyActivity extends AppCompatActivity {
 
     private JSONObject getProtectorList() {
         final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
-
         String[] data = databaseHelper.selectProtectorAll();
 
         protectorCount = data.length;
@@ -306,6 +288,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         try {
             JSONArray jsonProtectorArray = new JSONArray();
+
             for (int i = 0; i < protectorCount; i++) {
                 JSONObject jsonDataObject = new JSONObject();
 
@@ -325,7 +308,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
             jsonLocationDataObject.put("longitude", longitude);
             jsonLocationDataObject.put("latitude", latitude);
-            jsonLocationDataObject.put("altitude", altitude);
+            jsonLocationDataObject.put("accuracy", accuracy);
             jsonObject.put("gps", jsonLocationDataObject);
 
             if (pref.getBoolean("beacon", false)) {
@@ -344,6 +327,6 @@ public class EmergencyActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        return;
+
     }
 }

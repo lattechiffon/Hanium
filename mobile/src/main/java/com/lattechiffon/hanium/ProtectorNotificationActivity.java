@@ -1,19 +1,11 @@
 package com.lattechiffon.hanium;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,36 +16,23 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.ramotion.foldingcell.FoldingCell;
-import com.unstoppable.submitbuttonview.SubmitButton;
 
-import java.io.IOException;
-
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-
+/**
+ * 낙상사고 발생 감지 시 보호자에게 통지하는 기능을 담당하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class ProtectorNotificationActivity extends AppCompatActivity implements OnMapReadyCallback {
-
     private GoogleMap googleMap;
-    boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
+    private Vibrator vibrator;
+    private Intent intent;
 
-    Intent intent;
-    Vibrator vibrator;
-
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
-
-    TextView nameTextView, locationTextView, locationDetailTextView;
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_protector_notification);
-
-        intent = getIntent();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.activity_emergency));
@@ -67,27 +46,26 @@ public class ProtectorNotificationActivity extends AppCompatActivity implements 
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
-        editor = pref.edit();
-
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500};
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(pattern, 6);
 
-        nameTextView = (TextView) findViewById(R.id.protector_cell_header_name);
+        intent = getIntent();
+
+        TextView nameTextView = (TextView) findViewById(R.id.protector_cell_header_name);
         nameTextView.setText(intent.getStringExtra("user_name") + " 님");
 
-        locationTextView = (TextView) findViewById(R.id.content_body_address);
-        locationTextView.setText(intent.getStringExtra("location_latitude") + " / " + intent.getStringExtra("location_longitude"));
+        TextView locationTextView = (TextView) findViewById(R.id.content_body_address);
+        locationTextView.setText(intent.getDoubleExtra("location_latitude", 0) + " / " + intent.getDoubleExtra("location_longitude", 0) + " / " + intent.getDoubleExtra("location_accuracy", 0));
 
-        locationDetailTextView = (TextView) findViewById(R.id.content_detail_address);
+        TextView locationDetailTextView = (TextView) findViewById(R.id.content_detail_address);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-
         LatLng fallLocation = new LatLng(intent.getDoubleExtra("location_latitude", 0), intent.getDoubleExtra("location_longitude", 0));
+
+        this.googleMap = googleMap;
         this.googleMap.addMarker(new MarkerOptions().position(fallLocation).title("낙상사고 발생 지점"));
         this.googleMap.moveCamera(CameraUpdateFactory.zoomTo(17.0f));
         this.googleMap.moveCamera(CameraUpdateFactory.newLatLng(fallLocation));
@@ -98,6 +76,7 @@ public class ProtectorNotificationActivity extends AppCompatActivity implements 
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            vibrator.cancel();
             moveTaskToBack(true);
             finish();
             android.os.Process.killProcess(android.os.Process.myPid());

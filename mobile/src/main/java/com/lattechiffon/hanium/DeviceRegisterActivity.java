@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -31,24 +32,28 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * 이용자 기기 정보를 서버에 등록하는 기능을 제공하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class DeviceRegisterActivity extends AppCompatActivity {
-
     public final int PERMISSIONS_READ_PHONE_STATE = 3;
-    boolean doubleBackToExitPressedOnce = false; // 앱 종료를 판별하기 위한 변수
-    boolean nameIsEntered = false;
-    boolean autoPhoneNumber = false;
 
-    String phoneNumber;
+    private BackgroundTask task;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
+    private SubmitButton submitButton;
+    private EditText nameInput;
+    private EditText phoneInput;
+    private TextView welcomeText;
+    private TextView infoText;
 
-    SubmitButton submitButton;
-    EditText nameInput;
-    EditText phoneInput;
-    TextView welcomeText;
-    TextView infoText;
-    BackgroundTask task;
+    private boolean doubleBackToExitPressedOnce = false;
+    private boolean nameIsEntered = false;
+    private boolean autoPhoneNumber = false;
+    private String phoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +64,10 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.activity_device_register));
         }
 
-        submitButton = (SubmitButton) findViewById(R.id.submitButton);
-        nameInput = (EditText) findViewById(R.id.nameInput);
-        phoneInput = (EditText) findViewById(R.id.phoneInput);
-        welcomeText = (TextView) findViewById(R.id.deviceRegisterTitle);
-        infoText = (TextView) findViewById(R.id.deviceRegisterTitle2);
-
         pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
+        submitButton = (SubmitButton) findViewById(R.id.submitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,6 +86,11 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             }
         });
 
+        nameInput = (EditText) findViewById(R.id.nameInput);
+        phoneInput = (EditText) findViewById(R.id.phoneInput);
+        welcomeText = (TextView) findViewById(R.id.deviceRegisterTitle);
+        infoText = (TextView) findViewById(R.id.deviceRegisterTitle2);
+
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
@@ -101,13 +106,11 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.READ_PHONE_STATE }, PERMISSIONS_READ_PHONE_STATE);
             }
         } else {
-            autoPhoneNumber = true;
-
             TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
+            autoPhoneNumber = true;
             phoneNumber = telephonyManager.getLine1Number();
             phoneNumber = phoneNumber.replace("+82", "0");
-
             phoneInput.setText(phoneNumber);
             phoneInput.setFocusable(false);
             phoneInput.setClickable(false);
@@ -116,9 +119,9 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
-        String name;
-        String phone;
-        String push;
+        private String name;
+        private String phone;
+        private String push;
 
         @Override
         protected void onPreExecute() {
@@ -137,7 +140,6 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                     .add("phone", phone)
                     .add("token", push)
                     .build();
-
             Request request = new Request.Builder()
                     .url("http://www.lattechiffon.com/hanium/register.php")
                     .post(body)
@@ -146,7 +148,6 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             try {
                 return client.newCall(request).execute();
             } catch (IOException e) {
-                e.printStackTrace();
                 return null;
             }
 
@@ -161,14 +162,12 @@ public class DeviceRegisterActivity extends AppCompatActivity {
 
                 if (json.getString("result").equals("Authorized")) {
                     submitButton.doResult(true);
-
                     editor.putBoolean("deviceRegister", true);
                     editor.putString("name", name);
                     editor.putString("phone", phone);
                     editor.commit();
 
                     Handler handler = new Handler();
-
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -181,12 +180,10 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                     }, 1500);
                 } else {
                     submitButton.doResult(false);
-
                     welcomeText.setText(R.string.device_register_title_error);
                     infoText.setText(R.string.device_register_title2_error);
 
                     Handler handler = new Handler();
-
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -204,15 +201,12 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                         }
                     }, 2000);
                 }
-
             } catch (Exception e) {
                 submitButton.doResult(false);
-
                 welcomeText.setText(R.string.device_register_title_error);
                 infoText.setText(R.string.device_register_title2_error);
 
                 Handler handler = new Handler();
-
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -234,24 +228,20 @@ public class DeviceRegisterActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_READ_PHONE_STATE: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(DeviceRegisterActivity.this, getString(R.string.permission_toast_allow_read_phone_state), Toast.LENGTH_LONG).show();
-
-                    autoPhoneNumber = true;
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
+                    autoPhoneNumber = true;
                     phoneNumber = telephonyManager.getLine1Number();
                     phoneNumber = phoneNumber.replace("+82", "0");
-
                     phoneInput.setText(phoneNumber);
                     phoneInput.setFocusable(false);
                     phoneInput.setClickable(false);
+                    Toast.makeText(DeviceRegisterActivity.this, getString(R.string.permission_toast_allow_read_phone_state), Toast.LENGTH_LONG).show();
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_deny));
@@ -259,7 +249,6 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                     AlertDialog alert = builder.create();
                     alert.show();
                 }
-                return;
             }
         }
     }

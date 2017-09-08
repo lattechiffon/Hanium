@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
@@ -34,20 +35,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+/**
+ * 애플리케이션 초기 데이터 로드를 담당하는 클래스입니다.
+ * @version : 1.0
+ * @author  : Yongguk Go (lattechiffon@gmail.com)
+ */
 public class SplashActivity extends Activity {
     public final int PERMISSIONS_ACCESS_FINE_LOCATION = 1;
-    SharedPreferences pref, settingPref;
-    SharedPreferences.Editor editor;
-    BackgroundTask task;
+
+    private BackgroundTask task;
+    private SharedPreferences pref, settingPref;
+    private SharedPreferences.Editor editor;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-        pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
-        settingPref = PreferenceManager.getDefaultSharedPreferences(this);
-        editor = pref.edit();
 
         if (!networkConnection()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
@@ -65,6 +68,10 @@ public class SplashActivity extends Activity {
             FirebaseMessaging.getInstance().subscribeToTopic("emergency");
             FirebaseMessaging.getInstance().subscribeToTopic("feedback");
             FirebaseInstanceId.getInstance().getToken();
+
+            pref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
+            settingPref = PreferenceManager.getDefaultSharedPreferences(this);
+            editor = pref.edit();
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -105,17 +112,19 @@ public class SplashActivity extends Activity {
     }
 
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
-
-        ProgressDialog progressDialog = new ProgressDialog(SplashActivity.this);
-        String name;
-        String phone;
-        String push;
+        private ProgressDialog progressDialog = new ProgressDialog(SplashActivity.this);
+        private String name;
+        private String phone;
+        private String push;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setGravity(Gravity.BOTTOM);
+            }
+
             progressDialog.setMessage("이용자 인증 처리 중입니다.");
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
@@ -134,7 +143,6 @@ public class SplashActivity extends Activity {
                     .add("phone", phone)
                     .add("token", push)
                     .build();
-
             Request request = new Request.Builder()
                     .url("http://www.lattechiffon.com/hanium/login.php")
                     .post(body)
@@ -146,7 +154,6 @@ public class SplashActivity extends Activity {
                 e.printStackTrace();
                 return null;
             }
-
         }
 
         @Override
@@ -172,7 +179,13 @@ public class SplashActivity extends Activity {
                 }
 
             } catch (Exception e) {
+                editor.putBoolean("deviceRegister", false);
+                editor.commit();
 
+                Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
+
+                startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
+                finish();
             }
         }
     }
@@ -192,7 +205,7 @@ public class SplashActivity extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -233,8 +246,6 @@ public class SplashActivity extends Activity {
                     AlertDialog alert = builder.create();
                     alert.show();
                 }
-
-                return;
             }
         }
     }
