@@ -19,8 +19,9 @@ import java.util.UUID;
 /**
  * 애플리케이션 최초 설치 및 실행 시점에 수행되는 클래스입니다.
  * 백그라운드에서 비콘을 모니터링하는 서비스가 활성화됩니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class BeaconApplication extends Application {
     private BeaconManager beaconManager;

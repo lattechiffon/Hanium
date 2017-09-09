@@ -29,8 +29,9 @@ import okhttp3.RequestBody;
 
 /**
  * 보호자를 지정하는 기능을 제공하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class ContactsActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
@@ -106,8 +107,13 @@ public class ContactsActivity extends AppCompatActivity {
 
     /**
      * 서버로부터 보호자 리스트를 가져오는 내부 클래스입니다.
-     * @version : 1.0
-     * @author  : Yongguk Go (lattechiffon@gmail.com)
+     * 서버와의 통신을 담당하여 처리합니다.
+     *
+     * UI를 수정하는 작업은 메인 쓰레드에서 처리하여야 합니다.
+     * onPreExecute() 혹은 onPostExecute() 메서드에서 처리하여 주십시오.
+     *
+     * @version 1.0
+     * @author  Yongguk Go (lattechiffon@gmail.com)
      */
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
         private ProgressDialog progressDialog = new ProgressDialog(ContactsActivity.this);
@@ -122,7 +128,7 @@ public class ContactsActivity extends AppCompatActivity {
                     progressDialog.getWindow().setGravity(Gravity.BOTTOM);
                 }
 
-                progressDialog.setMessage("이용자 데이터 처리 중입니다.");
+                progressDialog.setMessage(getString(R.string.info_load_user_data));
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();
@@ -153,27 +159,27 @@ public class ContactsActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(okhttp3.Response a) {
-            super.onPostExecute(a);
+        protected void onPostExecute(okhttp3.Response response) {
+            super.onPostExecute(response);
 
             if (!swipeRefreshLayout.isRefreshing()) {
                 progressDialog.dismiss();
             }
 
-            if (a == null) {
+            if (response == null) {
                 contactsListViewAdapter.addItem(0, "기기에 등록된 연락처가 없습니다.", "보호자를 등록하려면 하나 이상의 연락처를 먼저 등록하여야 합니다.", false);
                 contactsListViewAdapter.notifyDataSetChanged();
 
                 if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
-                    Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ContactsActivity.this, getString(R.string.info_list_refresh), Toast.LENGTH_LONG).show();
                 }
 
                 return;
             }
 
             try {
-                JSONObject json = new JSONObject(a.body().string());
+                JSONObject json = new JSONObject(response.body().string());
 
                 if (json.getString("count").equals("0")) {
                     contactsListViewAdapter.addItem(0, "서비스에 등록된 이용자가 없습니다.", "보호자로 등록하려면 보호자의 기기를 먼저 등록하여야 합니다.", false);
@@ -200,14 +206,15 @@ public class ContactsActivity extends AppCompatActivity {
 
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(ContactsActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+                Toast.makeText(ContactsActivity.this, getString(R.string.info_list_refresh), Toast.LENGTH_LONG).show();
             }
         }
     }
 
     /**
      * 안드로이드 내의 주소록으로부터 모든 연락처 정보를 가져오는 메서드입니다.
-     * @return ; 주소록에 저장된 모든 연락처 정보 (구분 ID, 이름, 전하번호)
+     *
+     * @return 주소록에 저장된 모든 연락처 정보 (구분 ID, 이름, 전하번호)
      */
     private JSONObject getContactsList() {
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME }, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");

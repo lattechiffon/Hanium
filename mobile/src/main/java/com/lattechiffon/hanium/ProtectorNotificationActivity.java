@@ -19,8 +19,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * 낙상사고 발생 감지 시 보호자에게 통지하는 기능을 담당하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class ProtectorNotificationActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap googleMap;
@@ -56,9 +57,10 @@ public class ProtectorNotificationActivity extends AppCompatActivity implements 
         nameTextView.setText(intent.getStringExtra("user_name") + " 님");
 
         TextView locationTextView = (TextView) findViewById(R.id.content_body_address);
-        locationTextView.setText(intent.getDoubleExtra("location_latitude", 0) + " / " + intent.getDoubleExtra("location_longitude", 0) + " / " + intent.getDoubleExtra("location_accuracy", 0));
+        locationTextView.setText(intent.getStringExtra("location_address"));
 
         TextView locationDetailTextView = (TextView) findViewById(R.id.content_detail_address);
+        locationDetailTextView.setText("68%의 정확도로 반경 " + (int) intent.getDoubleExtra("location_accuracy", 0) + "m 이내");
     }
 
     @Override

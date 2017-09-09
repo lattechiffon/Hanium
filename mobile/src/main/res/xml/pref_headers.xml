@@ -3,6 +3,11 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
+        android:fragment="com.lattechiffon.hanium.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_settings_applications_black_24dp"
+        android:title="@string/pref_header_generals" />
+
+    <header
         android:fragment="com.lattechiffon.hanium.SettingsActivity$ModePreferenceFragment"
         android:icon="@drawable/ic_watch_black_24dp"
         android:title="@string/pref_header_modes" />

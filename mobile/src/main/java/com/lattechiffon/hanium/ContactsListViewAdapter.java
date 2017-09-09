@@ -13,8 +13,9 @@ import java.util.ArrayList;
 
 /**
  * 보호자 리스트 뷰를 담당하는 어댑터 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 class ContactsListViewAdapter extends BaseAdapter {
     private ArrayList<ContactsListViewItem> listViewItemList = new ArrayList<>();
@@ -64,6 +65,14 @@ class ContactsListViewAdapter extends BaseAdapter {
         return listViewItemList.get(position);
     }
 
+    /**
+     * 워치미 서비스에 가입된 연락처를 리스트의 아이템으로 삽입하는 메서드입니다.
+     *
+     * @param no 안드로이드 주소록 시스템에서 지정한 연락처 관리 번호
+     * @param name 연락처 이름
+     * @param phone 연락처 전화번호
+     * @param protector 보호자 지정 여부
+     */
     void addItem(int no, String name, String phone, boolean protector) {
         ContactsListViewItem item = new ContactsListViewItem();
 
@@ -75,6 +84,10 @@ class ContactsListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
+    /**
+     * 리스트의 모든 아이템을 리스트에서 삭제하는 메서드입니다.
+     * 실제로 보호자 데이터가 삭제되는 것은 아닙니다.
+     */
     void clear() {
         listViewItemList.clear();
         this.notifyDataSetChanged();

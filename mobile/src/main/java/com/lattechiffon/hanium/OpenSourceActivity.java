@@ -5,8 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 
 /**
  * 오픈 소스 라이선스 정보를 보여주는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class OpenSourceActivity extends AppCompatActivity {
     @Override
@@ -15,7 +16,7 @@ public class OpenSourceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_open_source);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("오픈 소스 라이선스");
+            getSupportActionBar().setTitle(getString(R.string.activity_open_source));
         }
 
     }

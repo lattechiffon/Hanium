@@ -22,8 +22,9 @@ import org.json.JSONObject;
 
 /**
  * Firebase Cloud Message(FCM) 푸시 알림을 담당하는 서비스 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
     @Override
@@ -31,6 +32,11 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         sendEmergencyNotification(remoteMessage.getData().get("message"));
     }
 
+    /**
+     * 푸시로 통지된 낙상사고 발생 정보를 처리하는 메서드입니다.
+     *
+     * @param messageBody 낙상사고 발생 정보
+     */
     private void sendEmergencyNotification(String messageBody) {
         Intent intent = new Intent();
         intent.setClass(getApplicationContext(), ProtectorNotificationActivity.class)
@@ -41,6 +47,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
             intent.putExtra("user_name", json.getJSONObject("user").getString("name"));
             intent.putExtra("user_phone", json.getJSONObject("user").getString("phone"));
+            intent.putExtra("location_address", json.getJSONObject("gps").getString("address"));
             intent.putExtra("location_longitude", json.getJSONObject("gps").getDouble("longitude"));
             intent.putExtra("location_latitude", json.getJSONObject("gps").getDouble("latitude"));
             intent.putExtra("location_accuracy", json.getJSONObject("gps").getDouble("accuracy"));
@@ -56,6 +63,11 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         startActivity(intent);
     }
 
+    /**
+     * 푸시로 통지된 공지사항 정보를 처리하는 메서드입니다.
+     *
+     * @param messageBody 낙상사고 발생 정보
+     */
     private void sendNewsNotification(String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -100,5 +112,4 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         notificationManager.notify(2017, notificationBuilder.build());
     }
-
 }

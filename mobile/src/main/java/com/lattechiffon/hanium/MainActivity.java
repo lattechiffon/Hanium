@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,8 +28,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
 /**
  * 애플리케이션 초기 화면을 담당하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class MainActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_CONTACTS = 2;
@@ -143,11 +145,7 @@ public class MainActivity extends AppCompatActivity {
                         new SwipeDismissListViewTouchListener.DismissCallbacks() {
                             @Override
                             public boolean canDismiss(int position) {
-                                if (adapter.getCount() > 1) {
-                                    return true;
-                                }
-
-                                return false;
+                                return adapter.getCount() > 1;
                             }
 
                             @Override
@@ -183,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
-        if (swipeRefreshLayout.isRefreshing() == true) {
+        if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
-            Toast.makeText(MainActivity.this, getString(R.string.main_toast_list_refresh), Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, getString(R.string.info_list_refresh), Toast.LENGTH_LONG).show();
         }
 
 
@@ -213,13 +211,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_READ_CONTACTS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, getString(R.string.permission_toast_allow_read_contacts), Toast.LENGTH_LONG).show();
 
                     Intent intent = new Intent();
@@ -234,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     AlertDialog alert = builder.create();
                     alert.show();
                 }
-                return;
             }
         }
     }

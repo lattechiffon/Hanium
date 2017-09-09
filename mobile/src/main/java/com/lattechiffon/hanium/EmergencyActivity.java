@@ -40,8 +40,9 @@ import okhttp3.RequestBody;
 
 /**
  * 낙상사고 발생 감지 시 이용자에게 통지하는 기능을 담당하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class EmergencyActivity extends AppCompatActivity {
     private LocationManager locationManager;
@@ -126,9 +127,7 @@ public class EmergencyActivity extends AppCompatActivity {
                                 intent.setClass(EmergencyActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
-
-                                //startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                //DeviceRegisterActivity.this.finish();
+                                finish();
                             }
                         }, 1500);
 
@@ -173,7 +172,7 @@ public class EmergencyActivity extends AppCompatActivity {
                     stopButton.setVisibility(View.INVISIBLE);
                 }
 
-                infoText.setText(timerCount + "초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.");
+                infoText.setText(String.format(getString(R.string.info_emergency_delay), timerCount));
 
                 if (timerCount-- > 0) {
                     delayTimer.sendEmptyMessageDelayed(0, 1000);
@@ -198,7 +197,7 @@ public class EmergencyActivity extends AppCompatActivity {
             accuracy = location.getAccuracy();
             provider = location.getProvider();
 
-            Toast.makeText(getApplicationContext(), "위치 정보를 가져오고 있습니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.info_location), Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -217,6 +216,16 @@ public class EmergencyActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 모든 보호자에게 낙상사고 발생 푸시 전송을 수행하는 내부 클래스입니다.
+     * 서버와의 통신을 담당하여 처리합니다.
+     *
+     * UI를 수정하는 작업은 메인 쓰레드에서 처리하여야 합니다.
+     * onPreExecute() 혹은 onPostExecute() 메서드에서 처리하여 주십시오.
+     *
+     * @version 1.0
+     * @author  Yongguk Go (lattechiffon@gmail.com)
+     */
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
         private ProgressDialog progressDialog = new ProgressDialog(EmergencyActivity.this);
         private JSONObject jsonObject;
@@ -229,7 +238,7 @@ public class EmergencyActivity extends AppCompatActivity {
                 progressDialog.getWindow().setGravity(Gravity.BOTTOM);
             }
 
-            progressDialog.setMessage("지정된 모든 보호자에게 낙상사고를 알리는 중입니다.");
+            progressDialog.setMessage(getString(R.string.info_send_push));
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
@@ -259,21 +268,26 @@ public class EmergencyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(okhttp3.Response a) {
-            super.onPostExecute(a);
+        protected void onPostExecute(okhttp3.Response response) {
+            super.onPostExecute(response);
 
             progressDialog.dismiss();
 
-            if (a == null) {
-                Toast.makeText(EmergencyActivity.this, "오류가 발생하였습니다.", Toast.LENGTH_LONG).show();
+            if (response == null) {
+                Toast.makeText(EmergencyActivity.this, getString(R.string.info_error), Toast.LENGTH_LONG).show();
 
                 return;
             }
 
-            Toast.makeText(EmergencyActivity.this, "지정된 모든 보호자에게 낙상사고 발생을 통보하였습니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(EmergencyActivity.this, getString(R.string.info_send_push_complete), Toast.LENGTH_LONG).show();
         }
     }
 
+    /**
+     * 이용자와 모든 보호자에 대한 정보를 반환하는 메서드입니다.
+     *
+     * @return 이용자 및 모든 보호자 정보
+     */
     private JSONObject getProtectorList() {
         final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
         String[] data = databaseHelper.selectProtectorAll();

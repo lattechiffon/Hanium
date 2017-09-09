@@ -11,8 +11,8 @@
     <string name="activity_contacts">응급 알림 보호자 지정</string>
     <string name="activity_emergency">워치미 : 낙상사고 발생 알림</string>
     <string name="activity_settings">설정</string>
-
-    <string name="main_toast_list_refresh">새로운 데이터를 성공적으로 가져왔습니다.</string>
+    <string name="activity_developer">개발팀 정보</string>
+    <string name="activity_open_source">오픈 소스 라이선스</string>å
 
     <string name="device_register_title">반갑습니다</string>
     <string name="device_register_title_error">기기 등록을 실패하였습니다</string>
@@ -28,6 +28,21 @@
     <string name="emergency_title">낙상으로 인식되었습니다</string>
     <string name="emergency_info">10초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
     <string name="emergency_button_stop">중지하기</string>
+
+    <string name="error_title_network">네트워크에 연결되지 않았습니다.</string>
+    <string name="error_body_network">로그인 서버에 접근할 수 없습니다.\n기기의 네트워크 연결 상태를 확인하여 주십시오.</string>
+
+    <string name="info_load_user_data">이용자 인증 처리 중입니다.</string>
+    <string name="info_login_failed">로그인에 실패하였습니다.</string>
+    <string name="info_emergency_delay">%1$d초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
+    <string name="info_location">위치 정보를 가져오고 있습니다.</string>
+    <string name="info_send_push">지정된 모든 보호자에게 낙상사고를 알리는 중입니다.</string>
+    <string name="info_send_push_complete">지정된 모든 보호자에게 낙상사고 발생을 통보하였습니다.</string>
+    <string name="info_error">오류가 발생하였습니다.</string>
+    <string name="info_list_refresh">새로운 데이터를 성공적으로 가져왔습니다.</string>
+
+    <string name="dialog_ok">확인</string>
+    <string name="dialog_cancel">취소</string>
 
 
     <!-- 권한 -->
@@ -51,7 +66,11 @@
 
     <string name="action_settings">설정</string>
 
-    <string name="pref_header_modes">사용자 모드</string>
+    <string name="pref_header_generals">일반</string>
+    <string name="pref_generals_category_1">낙상사고 통지</string>
+    <string name="pref_title_notify_emergency">전송 방법</string>
+
+    <string name="pref_header_modes">이용자 모드</string>
     <string name="pref_title_user_mode">보호자 모드로 전환</string>
     <string name="pref_description_user_mode">보호자 모드로 전환하면 낙상 인식을 더 이상 수행하지 않습니다.</string>
 

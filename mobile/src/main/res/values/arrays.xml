@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notify_emergency_entries">
+        <item>푸시 서버 이용</item>
+        <item>문자 메시지 전송</item>
+    </string-array>
+
+    <string-array name="notify_emergency_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+</resources>

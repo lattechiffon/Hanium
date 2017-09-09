@@ -37,8 +37,9 @@ import okhttp3.RequestBody;
 
 /**
  * 애플리케이션 초기 데이터 로드를 담당하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class SplashActivity extends Activity {
     public final int PERMISSIONS_ACCESS_FINE_LOCATION = 1;
@@ -54,8 +55,8 @@ public class SplashActivity extends Activity {
 
         if (!networkConnection()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
-            builder.setTitle("네트워크에 연결되지 않았습니다.");
-            builder.setMessage("로그인 서버에 접근할 수 없습니다.\n기기의 네트워크 연결 상태를 확인하여 주십시오.").setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            builder.setTitle(getString(R.string.error_title_network));
+            builder.setMessage(getString(R.string.error_body_network)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     finish();
                     android.os.Process.killProcess(android.os.Process.myPid());
@@ -125,7 +126,7 @@ public class SplashActivity extends Activity {
                 progressDialog.getWindow().setGravity(Gravity.BOTTOM);
             }
 
-            progressDialog.setMessage("이용자 인증 처리 중입니다.");
+            progressDialog.setMessage(getString(R.string.info_load_user_data));
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
@@ -157,13 +158,13 @@ public class SplashActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(okhttp3.Response a) {
-            super.onPostExecute(a);
+        protected void onPostExecute(okhttp3.Response response) {
+            super.onPostExecute(response);
 
             progressDialog.dismiss();
 
             try {
-                JSONObject json = new JSONObject(a.body().string());
+                JSONObject json = new JSONObject(response.body().string());
 
                 if (json.getString("result").equals("Authorized")) {
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
@@ -172,7 +173,7 @@ public class SplashActivity extends Activity {
                     editor.putBoolean("deviceRegister", false);
                     editor.commit();
 
-                    Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SplashActivity.this, getString(R.string.info_login_failed), Toast.LENGTH_LONG).show();
 
                     startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                     finish();
@@ -182,7 +183,7 @@ public class SplashActivity extends Activity {
                 editor.putBoolean("deviceRegister", false);
                 editor.commit();
 
-                Toast.makeText(SplashActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_LONG).show();
+                Toast.makeText(SplashActivity.this, getString(R.string.info_login_failed), Toast.LENGTH_LONG).show();
 
                 startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                 finish();
@@ -208,9 +209,7 @@ public class SplashActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     Toast.makeText(SplashActivity.this, getString(R.string.permission_toast_allow_access_fine_location), Toast.LENGTH_LONG).show();
 

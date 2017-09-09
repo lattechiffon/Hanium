@@ -1,0 +1,11 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_generals_category_1">
+        <ListPreference
+            android:defaultValue="1"
+            android:dialogTitle="@string/pref_title_notify_emergency"
+            android:entries="@array/notify_emergency_entries"
+            android:entryValues="@array/notify_emergency_values"
+            android:key="generals_notify_emergency"
+            android:title="@string/pref_title_notify_emergency" />
+    </PreferenceCategory>
+</PreferenceScreen>

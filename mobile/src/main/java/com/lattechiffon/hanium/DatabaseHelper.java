@@ -7,8 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * SQLite 데이터베이스의 쿼리 처리를 담당하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 class DatabaseHelper extends SQLiteOpenHelper {
     DatabaseHelper(Context context) {
@@ -26,18 +27,34 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * 데이터베이스 삽입 질의를 수행하는 메서드입니다.
+     *
+     * @param query 데이터베이스 삽입 질의
+     */
     void insert(String query) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL(query);
         db.close();
     }
 
+    /**
+     * 데이터베이스 수정 질의를 수행하는 메서드입니다.
+     *
+     * @param query 데이터베이스 수정 질의
+     */
     void update(String query) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL(query);
         db.close();
     }
 
+    /**
+     * 특정 연락처의 보호자 지정 여부를 반환하는 메서드입니다.
+     *
+     * @param userNo 연락처 관리 번호
+     * @return 보호자 지정 여부
+     */
     boolean checkProtector(int userNo) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -51,6 +68,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * 보호자로 지정된 모든 연락처의 관리 번호를 반환하는 메서드입니다.
+     *
+     * @return 모든 보호자의 연락처 관리 번호
+     */
     String[] selectProtectorAll() {
         SQLiteDatabase db = getReadableDatabase();
         int count = 0;
@@ -80,6 +102,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return retStr;
     }
 
+    /**
+     * 모든 낙상사고 발생 기록을 반환하는 메서드입니다.
+     *
+     * @return 모든 낙상사고 발생 기록 관리 번호
+     */
     String[][] selectFallingRecordAll() {
         SQLiteDatabase db = getReadableDatabase();
         int count = 0;
@@ -115,6 +142,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return retStr;
     }
 
+    /**
+     * 가장 최근에 등록된 낙상사고 발생 기록을 반환하는 메서드입니다.
+     *
+     * @return 가장 최근에 등록된 낙상사고 발생 기록 관리 번호
+     */
     int selectTopNo() {
         SQLiteDatabase db = getReadableDatabase();
 

@@ -12,8 +12,9 @@ import java.util.Date;
 
 /**
  * 웨어 디바이스로부터 데이터를 수신하는 기능을 담당하는 서비스 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class WearCallListenerService extends WearableListenerService {
     public static String SERVICE_CALLED_WEAR = "WearFallRecognition";

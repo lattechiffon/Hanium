@@ -34,8 +34,9 @@ import okhttp3.RequestBody;
 
 /**
  * 이용자 기기 정보를 서버에 등록하는 기능을 제공하는 클래스입니다.
- * @version : 1.0
- * @author  : Yongguk Go (lattechiffon@gmail.com)
+ *
+ * @version 1.0
+ * @author  Yongguk Go (lattechiffon@gmail.com)
  */
 public class DeviceRegisterActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_PHONE_STATE = 3;
@@ -106,17 +107,29 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.READ_PHONE_STATE }, PERMISSIONS_READ_PHONE_STATE);
             }
         } else {
-            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            try {
+                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-            autoPhoneNumber = true;
-            phoneNumber = telephonyManager.getLine1Number();
-            phoneNumber = phoneNumber.replace("+82", "0");
-            phoneInput.setText(phoneNumber);
-            phoneInput.setFocusable(false);
-            phoneInput.setClickable(false);
+                autoPhoneNumber = true;
+                phoneNumber = telephonyManager.getLine1Number();
+                phoneNumber = phoneNumber.replace("+82", "0");
+                phoneInput.setText(phoneNumber);
+                phoneInput.setFocusable(false);
+                phoneInput.setClickable(false);
+            } catch (NullPointerException ignored) { }
         }
     }
 
+    /**
+     * 새로운 기기 등록 프로세스를 수행하는 내부 클래스입니다.
+     * 서버와의 통신을 담당하여 처리합니다.
+     *
+     * UI를 수정하는 작업은 메인 쓰레드에서 처리하여야 합니다.
+     * onPreExecute() 혹은 onPostExecute() 메서드에서 처리하여 주십시오.
+     *
+     * @version 1.0
+     * @author  Yongguk Go (lattechiffon@gmail.com)
+     */
     private class BackgroundTask extends AsyncTask<String, Integer, okhttp3.Response> {
 
         private String name;
@@ -154,11 +167,11 @@ public class DeviceRegisterActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(okhttp3.Response a) {
-            super.onPostExecute(a);
+        protected void onPostExecute(okhttp3.Response response) {
+            super.onPostExecute(response);
 
             try {
-                JSONObject json = new JSONObject(a.body().string());
+                JSONObject json = new JSONObject(response.body().string());
 
                 if (json.getString("result").equals("Authorized")) {
                     submitButton.doResult(true);
@@ -178,52 +191,32 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                             DeviceRegisterActivity.this.finish();
                         }
                     }, 1500);
-                } else {
-                    submitButton.doResult(false);
-                    welcomeText.setText(R.string.device_register_title_error);
-                    infoText.setText(R.string.device_register_title2_error);
 
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            submitButton.reset();
-
-                            nameIsEntered = false;
-                            nameInput.setText("");
-                            if (!autoPhoneNumber) {
-                                phoneInput.setText("");
-                            }
-                            phoneInput.setVisibility(View.GONE);
-                            nameInput.setVisibility(View.VISIBLE);
-                            welcomeText.setText(R.string.device_register_title);
-                            infoText.setText(R.string.device_register_title2);
-                        }
-                    }, 2000);
+                    return;
                 }
-            } catch (Exception e) {
-                submitButton.doResult(false);
-                welcomeText.setText(R.string.device_register_title_error);
-                infoText.setText(R.string.device_register_title2_error);
+            } catch (Exception ignored) { }
 
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        submitButton.reset();
+            submitButton.doResult(false);
+            welcomeText.setText(R.string.device_register_title_error);
+            infoText.setText(R.string.device_register_title2_error);
 
-                        nameIsEntered = false;
-                        nameInput.setText("");
-                        if (!autoPhoneNumber) {
-                            phoneInput.setText("");
-                        }
-                        phoneInput.setVisibility(View.GONE);
-                        nameInput.setVisibility(View.VISIBLE);
-                        welcomeText.setText(R.string.device_register_title);
-                        infoText.setText(R.string.device_register_title2);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    submitButton.reset();
+
+                    nameIsEntered = false;
+                    nameInput.setText("");
+                    if (!autoPhoneNumber) {
+                        phoneInput.setText("");
                     }
-                }, 2000);
-            }
+                    phoneInput.setVisibility(View.GONE);
+                    nameInput.setVisibility(View.VISIBLE);
+                    welcomeText.setText(R.string.device_register_title);
+                    infoText.setText(R.string.device_register_title2);
+                }
+            }, 2000);
         }
     }
 
@@ -231,7 +224,6 @@ public class DeviceRegisterActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_READ_PHONE_STATE: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
