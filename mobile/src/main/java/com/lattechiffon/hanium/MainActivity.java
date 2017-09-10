@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         countTextView = (TextView) findViewById(R.id.falling_count_text_view);
         welcomeTextView = (TextView) findViewById(R.id.welcome_text_view);
 
-        welcomeTextView.setText(pref.getString("name", "비인증 사용자") + " 님 반갑습니다");
+        welcomeTextView.setText(String.format(getString(R.string.main_welcome), pref.getString("name", "비인증 사용자")));
 
         final DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
 
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_CONTACTS)) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(getString(R.string.permission_dialog_title_read_contacts));
-                        builder.setMessage(getString(R.string.permission_dialog_title_read_contacts)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        builder.setMessage(getString(R.string.permission_dialog_title_read_contacts)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.READ_CONTACTS }, PERMISSIONS_READ_CONTACTS);
                             }
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                                     databaseHelper.insert("UPDATE FALLING_RECORD SET valid = 0 WHERE no = " + adapter.getItemNo(adapter.getItem(position)) + ";");
                                     adapter.remove(adapter.getItem(position));
                                     listItemDataCount--;
-                                    countTextView.setText("지금까지 낙상이 " + listItemDataCount + "번 감지되었습니다.");
+                                    countTextView.setText(String.format(getString(R.string.main_sliding_up_panel_title), listItemDataCount));
                                 }
                             }
                         });
@@ -174,9 +174,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (Integer.parseInt(data[data.length - 1][0]) != 0) {
-            countTextView.setText("지금까지 낙상이 " + listItemDataCount + "번 감지되었습니다.");
+            countTextView.setText(String.format(getString(R.string.main_sliding_up_panel_title), listItemDataCount));
         } else {
-            countTextView.setText("지금까지 낙상 감지 기록이 없습니다.");
+            countTextView.setText(getString(R.string.main_sliding_up_panel_title_list_empty));
         }
 
         adapter.notifyDataSetChanged();
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_deny));
-                    builder.setMessage(getString(R.string.permission_dialog_body_read_contacts)).setCancelable(false).setPositiveButton("확인", null);
+                    builder.setMessage(getString(R.string.permission_dialog_body_read_contacts)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), null);
                     AlertDialog alert = builder.create();
                     alert.show();
                 }

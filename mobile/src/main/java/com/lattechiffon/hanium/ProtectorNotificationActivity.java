@@ -57,10 +57,18 @@ public class ProtectorNotificationActivity extends AppCompatActivity implements 
         nameTextView.setText(intent.getStringExtra("user_name") + " 님");
 
         TextView locationTextView = (TextView) findViewById(R.id.content_body_address);
-        locationTextView.setText(intent.getStringExtra("location_address"));
-
         TextView locationDetailTextView = (TextView) findViewById(R.id.content_detail_address);
-        locationDetailTextView.setText("68%의 정확도로 반경 " + (int) intent.getDoubleExtra("location_accuracy", 0) + "m 이내");
+
+        if (intent.getStringExtra("beacon_spot") == "empty" && intent.getDoubleExtra("beacon_distance", -1) == -1) {
+            locationTextView.setText(intent.getStringExtra("location_address"));
+            locationDetailTextView.setText("68%의 정확도로 반경 " + (int) intent.getDoubleExtra("location_accuracy", 0) + "m 이내");
+        } else if (intent.getDoubleExtra("beacon_distance", -1) == -1) {
+            locationTextView.setText(intent.getStringExtra("beacon_spot") + " (" + intent.getStringExtra("location_address") + ")");
+            locationDetailTextView.setText("68%의 정확도로 반경 " + (int) intent.getDoubleExtra("location_accuracy", 0) + "m 이내");
+        } else {
+            locationTextView.setText(intent.getStringExtra("beacon_spot") + " (" + intent.getStringExtra("location_address") + ")");
+            locationDetailTextView.setText("높은 정확도로 반경 " + intent.getIntExtra("beacon_distance", 0) + "m 이내");
+        }
     }
 
     @Override

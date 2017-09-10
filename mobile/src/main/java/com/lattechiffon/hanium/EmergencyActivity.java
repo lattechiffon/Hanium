@@ -3,16 +3,17 @@ package com.lattechiffon.hanium;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
@@ -23,6 +24,13 @@ import android.widget.Toast;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
 import com.estimote.coresdk.recognition.packets.Beacon;
 import com.estimote.coresdk.service.BeaconManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
 import com.unstoppable.submitbuttonview.SubmitButton;
 
 import org.json.JSONArray;
@@ -44,9 +52,13 @@ import okhttp3.RequestBody;
  * @version 1.0
  * @author  Yongguk Go (lattechiffon@gmail.com)
  */
-public class EmergencyActivity extends AppCompatActivity {
+public class EmergencyActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener  {
+    public static String SERVICE_CALLED_MOBILE = "MobileStopFeedback";
+
     private LocationManager locationManager;
     private BeaconManager beaconManager;
+    private AudioManager audioManager;
+    private GoogleApiClient mGoogleApiClient;
     private Vibrator vibrator;
     private BackgroundTask task;
     private SharedPreferences pref, userPref;
@@ -55,8 +67,10 @@ public class EmergencyActivity extends AppCompatActivity {
     private SubmitButton stopButton;
     private TextView infoText;
 
+    private Node mNode;
+    private boolean mResolvingError = false;
     private BeaconRegion beaconRegion;
-    private int timerCount, protectorCount, beaconDistance;
+    private int timerCount, protectorCount, beaconDistance = -1;
     private double longitude, latitude;
     private float accuracy;
     private String provider;
@@ -93,6 +107,8 @@ public class EmergencyActivity extends AppCompatActivity {
                 if (!list.isEmpty()) {
                     Beacon nearestBeacon = list.get(0);
                     beaconDistance = Math.abs(nearestBeacon.getRssi());
+
+                    Toast.makeText(getApplicationContext(), getString(R.string.info_location), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -105,40 +121,53 @@ public class EmergencyActivity extends AppCompatActivity {
         userPref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(pattern, -1);
+        long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
+
+        switch (audioManager.getRingerMode()) {
+            case AudioManager.RINGER_MODE_SILENT:
+
+                break;
+
+            case AudioManager.RINGER_MODE_VIBRATE:
+                vibrator.vibrate(pattern, -1);
+
+                break;
+
+            case AudioManager.RINGER_MODE_NORMAL:
+                vibrator.vibrate(pattern, -1);
+
+                break;
+        }
 
         stopButton = (SubmitButton) findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopButton.doResult(true);
+                stopButton.doResult(true);
 
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = new Intent();
-                                intent.setClass(EmergencyActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
-                                finish();
-                            }
-                        }, 1500);
-
-                    }
-                }, 2000);
+                sendMessage("stop");
             }
         });
         infoText = (TextView) findViewById(R.id.emergencyInfo);
         timerCount = 15;
 
         delayTimer.sendEmptyMessage(0);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
@@ -280,6 +309,7 @@ public class EmergencyActivity extends AppCompatActivity {
             }
 
             Toast.makeText(EmergencyActivity.this, getString(R.string.info_send_push_complete), Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -328,8 +358,14 @@ public class EmergencyActivity extends AppCompatActivity {
             if (pref.getBoolean("beacon", false)) {
                 JSONObject jsonBeaconDataObject = new JSONObject();
 
-                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "home"));
+                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "집"));
                 jsonBeaconDataObject.put("distance", beaconDistance);
+                jsonObject.put("beacon", jsonBeaconDataObject);
+            } else {
+                JSONObject jsonBeaconDataObject = new JSONObject();
+
+                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "empty"));
+                jsonBeaconDataObject.put("distance", -1);
                 jsonObject.put("beacon", jsonBeaconDataObject);
             }
         } catch (JSONException e) {
@@ -337,6 +373,57 @@ public class EmergencyActivity extends AppCompatActivity {
         }
 
         return jsonObject;
+    }
+
+    /**
+     * Resolve the node = the connected device to send the message to
+     */
+    private void resolveNode() {
+
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
+                .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(@NonNull NodeApi.GetConnectedNodesResult nodes) {
+                        for (Node node : nodes.getNodes()) {
+                            mNode = node;
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        resolveNode();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    /**
+     * Send message to wear device
+     */
+    private void sendMessage(String Key) {
+
+        if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
+            Wearable.MessageApi.sendMessage(
+                    mGoogleApiClient, mNode.getId(), SERVICE_CALLED_MOBILE + "--" + Key, null).setResultCallback(
+                    new ResultCallback<MessageApi.SendMessageResult>() {
+                        @Override
+                        public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {
+                            if (!sendMessageResult.getStatus().isSuccess()) {
+                                // error
+                            }
+                        }
+                    }
+            );
+        }
     }
 
     @Override

@@ -10,10 +10,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class FallingCheckService extends Service implements SensorEventListener {
-    public FallingCheckService() {
-    }
-
     private SensorManager sensorManager;
+
     private Sensor accelSensor;
     private float[] mGravity;
     private float accelPivot;
@@ -28,7 +26,6 @@ public class FallingCheckService extends Service implements SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
         if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             mGravity = event.values.clone();
 

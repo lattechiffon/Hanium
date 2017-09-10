@@ -153,7 +153,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT no FROM FALLING_RECORD ORDER BY no DESC LIMIT 1;", null);
         cursor.moveToNext();
 
-        int retInt = cursor.getInt(9);
+        int retInt = cursor.getInt(0);
 
         cursor.close();
 

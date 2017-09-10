@@ -51,11 +51,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
             intent.putExtra("location_longitude", json.getJSONObject("gps").getDouble("longitude"));
             intent.putExtra("location_latitude", json.getJSONObject("gps").getDouble("latitude"));
             intent.putExtra("location_accuracy", json.getJSONObject("gps").getDouble("accuracy"));
-
-            if (json.getJSONObject("beacon") != null) {
-                intent.putExtra("beacon_spot", json.getJSONObject("beacon").getString("spot"));
-                intent.putExtra("beacon_distance", json.getJSONObject("beacon").getInt("distance"));
-            }
+            intent.putExtra("beacon_spot", json.getJSONObject("beacon").getString("spot"));
+            intent.putExtra("beacon_distance", json.getJSONObject("beacon").getInt("distance"));
         } catch (JSONException e) {
             return;
         }

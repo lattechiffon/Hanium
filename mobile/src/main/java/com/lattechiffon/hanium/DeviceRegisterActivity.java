@@ -96,7 +96,7 @@ public class DeviceRegisterActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_PHONE_STATE)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
                 builder.setTitle(getString(R.string.permission_dialog_title_read_phone_state));
-                builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         ActivityCompat.requestPermissions(DeviceRegisterActivity.this, new String[] { android.Manifest.permission.READ_PHONE_STATE }, PERMISSIONS_READ_PHONE_STATE);
                     }
@@ -237,7 +237,7 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(DeviceRegisterActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_deny));
-                    builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton("확인", null);
+                    builder.setMessage(getString(R.string.permission_dialog_body_read_phone_state)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), null);
                     AlertDialog alert = builder.create();
                     alert.show();
                 }

@@ -78,7 +78,7 @@ public class SplashActivity extends Activity {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_access_fine_location));
-                    builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_ACCESS_FINE_LOCATION);
                         }
@@ -236,7 +236,7 @@ public class SplashActivity extends Activity {
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
                     builder.setTitle(getString(R.string.permission_dialog_title_deny));
-                    builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    builder.setMessage(getString(R.string.permission_dialog_body_access_fine_location)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             finish();
                             android.os.Process.killProcess(android.os.Process.myPid());

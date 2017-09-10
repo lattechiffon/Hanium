@@ -128,7 +128,7 @@ public class ContactsActivity extends AppCompatActivity {
                     progressDialog.getWindow().setGravity(Gravity.BOTTOM);
                 }
 
-                progressDialog.setMessage(getString(R.string.info_load_user_data));
+                progressDialog.setMessage(getString(R.string.info_load_list_data));
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();

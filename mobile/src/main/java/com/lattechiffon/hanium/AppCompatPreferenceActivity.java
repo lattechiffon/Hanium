@@ -14,7 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * AppCompat 상속 클래스에서 필수적으로 사용되는 메서드 집합 클래스입니다.
+ * AppCompatPreferenceActivity 상속 클래스에서 필수적으로 사용되는 메서드 집합 클래스입니다.
+ * SettingsActivity 클래스가 AppCompatPreferenceActivity 클래스를 상속받고 있습니다.
  *
  * @version 1.0
  * @author  Yongguk Go (lattechiffon@gmail.com)

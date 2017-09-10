@@ -12,7 +12,11 @@
     <string name="activity_emergency">워치미 : 낙상사고 발생 알림</string>
     <string name="activity_settings">설정</string>
     <string name="activity_developer">개발팀 정보</string>
-    <string name="activity_open_source">오픈 소스 라이선스</string>å
+    <string name="activity_open_source">오픈 소스 라이선스</string>
+
+    <string name="main_welcome">%1$s 님 반갑습니다</string>
+    <string name="main_sliding_up_panel_title_list_empty">지금까지 낙상 감지 기록이 없습니다.</string>
+    <string name="main_sliding_up_panel_title">지금까지 낙상이 %1$d번 감지되었습니다.</string>
 
     <string name="device_register_title">반갑습니다</string>
     <string name="device_register_title_error">기기 등록을 실패하였습니다</string>
@@ -33,6 +37,7 @@
     <string name="error_body_network">로그인 서버에 접근할 수 없습니다.\n기기의 네트워크 연결 상태를 확인하여 주십시오.</string>
 
     <string name="info_load_user_data">이용자 인증 처리 중입니다.</string>
+    <string name="info_load_list_data">이용자 데이터 처리 중입니다.</string>
     <string name="info_login_failed">로그인에 실패하였습니다.</string>
     <string name="info_emergency_delay">%1$d초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
     <string name="info_location">위치 정보를 가져오고 있습니다.</string>

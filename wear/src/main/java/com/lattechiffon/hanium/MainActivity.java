@@ -11,7 +11,6 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.wearable.view.WatchViewStub;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,22 +23,19 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-    Node mNode;
-    GoogleApiClient mGoogleApiClient;
-    private boolean mResolvingError = false;
-    Vibrator vibrator;
-
-    int timerCount;
-
-    SharedPreferences pref;
-    SharedPreferences.Editor editor;
-
     public static String SERVICE_CALLED_WEAR = "WearFallRecognition";
-    public static String TAG = "WearMainActivity";
 
-    WatchViewStub stub;
+    private GoogleApiClient mGoogleApiClient;
+    private Vibrator vibrator;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+
+    private WatchViewStub stub;
     private TextView mTextView;
+
+    private Node mNode;
+    private boolean mResolvingError = false;
+    private int timerCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,35 +55,35 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .build();
 
         stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 mTextView = (TextView) stub.findViewById(R.id.text);
             }
         });
-
         stub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!pref.getBoolean("fall", false)) {
-
                     sendMessage("fall");
+
                     timerCount = 15;
 
-                    vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 1500, 500, 3000};
+                    vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     vibrator.vibrate(pattern, -1);
 
                     delayTimer.sendEmptyMessage(0);
 
                     editor.putBoolean("fall", true);
-                    editor.commit();
+                    editor.apply();
                 } else {
                     sendMessage("stop");
+
                     if (vibrator != null) {
                         vibrator.cancel();
                     }
+
                     mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     mTextView.setText("낙상 응급 알림이 중단되었습니다.");
                     mTextView.setTextSize(14);
@@ -95,11 +91,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     stub.setBackgroundColor(Color.rgb(35, 46, 51));
 
                     editor.putBoolean("fall", false);
-                    editor.commit();
+                    editor.apply();
                 }
             }
         });
-
     }
 
     @Override
@@ -143,6 +138,13 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     editor.putBoolean("fall", false);
                     editor.commit();
                 }
+            } else {
+                if (!pref.getBoolean("fall", false)) {
+                    editor.putBoolean("fall", true);
+                    editor.commit();
+
+                    stub.performClick();
+                }
             }
         }
     };
@@ -151,7 +153,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
@@ -190,19 +191,15 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      * Send message to mobile handheld
      */
     private void sendMessage(String Key) {
-
         if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
-            Log.d(TAG, "-- " + mGoogleApiClient.isConnected());
-            Log.d("전송", Key);
             Wearable.MessageApi.sendMessage(
                     mGoogleApiClient, mNode.getId(), SERVICE_CALLED_WEAR + "--" + Key, null).setResultCallback(
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
                         public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {
-                            if (!sendMessageResult.getStatus().isSuccess()) {
-                                Log.e(TAG, "Failed to send message with status code: "
-                                        + sendMessageResult.getStatus().getStatusCode());
-                            }
+                            /*if (!sendMessageResult.getStatus().isSuccess()) {
+                                // error
+                            }*/
                         }
                     }
             );
