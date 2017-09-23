@@ -58,7 +58,7 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     private LocationManager locationManager;
     private BeaconManager beaconManager;
     private AudioManager audioManager;
-    private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient googleApiClient;
     private Vibrator vibrator;
     private BackgroundTask task;
     private SharedPreferences pref, userPref;
@@ -67,8 +67,8 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     private SubmitButton stopButton;
     private TextView infoText;
 
-    private Node mNode;
-    private boolean mResolvingError = false;
+    private Node node;
+    private boolean resolvingError = false, beaconToast = false, locationToast = false;
     private BeaconRegion beaconRegion;
     private int timerCount, protectorCount, beaconDistance = -1;
     private double longitude, latitude;
@@ -106,9 +106,12 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
             public void onBeaconsDiscovered(BeaconRegion region, List<Beacon> list) {
                 if (!list.isEmpty()) {
                     Beacon nearestBeacon = list.get(0);
-                    beaconDistance = Math.abs(nearestBeacon.getRssi());
+                    beaconDistance = (int) Math.abs(Math.pow(10d, (nearestBeacon.getMeasuredPower() - nearestBeacon.getRssi()) / (10 * 2)));
 
-                    Toast.makeText(getApplicationContext(), getString(R.string.info_location), Toast.LENGTH_LONG).show();
+                    if (!beaconToast) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.info_beacon), Toast.LENGTH_LONG).show();
+                        beaconToast = true;
+                    }
                 }
             }
         });
@@ -121,7 +124,7 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
         userPref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -165,8 +168,8 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
+        if (!resolvingError) {
+            googleApiClient.connect();
         }
     }
 
@@ -226,7 +229,10 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
             accuracy = location.getAccuracy();
             provider = location.getProvider();
 
-            Toast.makeText(getApplicationContext(), getString(R.string.info_location), Toast.LENGTH_LONG).show();
+            if (!locationToast) {
+                Toast.makeText(getApplicationContext(), getString(R.string.info_location), Toast.LENGTH_LONG).show();
+                locationToast = true;
+            }
         }
 
         @Override
@@ -376,16 +382,16 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     }
 
     /**
-     * Resolve the node = the connected device to send the message to
+     * 연동된 웨어러블 디바이스를 등록하는 기능을 수행하는 메서드입니다.
      */
     private void resolveNode() {
 
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
+        Wearable.NodeApi.getConnectedNodes(googleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
                     public void onResult(@NonNull NodeApi.GetConnectedNodesResult nodes) {
                         for (Node node : nodes.getNodes()) {
-                            mNode = node;
+                            EmergencyActivity.this.node = node;
                         }
                     }
                 });
@@ -407,13 +413,15 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     }
 
     /**
-     * Send message to wear device
+     * 웨어러블 디바이스로 데이터를 전송하는 기능을 수행하는 메서드입니다.
+     *
+     * @param Key 데이터 내용
      */
     private void sendMessage(String Key) {
 
-        if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
+        if (node != null && googleApiClient != null && googleApiClient.isConnected()) {
             Wearable.MessageApi.sendMessage(
-                    mGoogleApiClient, mNode.getId(), SERVICE_CALLED_MOBILE + "--" + Key, null).setResultCallback(
+                    googleApiClient, node.getId(), SERVICE_CALLED_MOBILE + "--" + Key, null).setResultCallback(
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
                         public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {

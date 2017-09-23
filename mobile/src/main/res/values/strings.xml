@@ -33,6 +33,15 @@
     <string name="emergency_info">10초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
     <string name="emergency_button_stop">중지하기</string>
 
+    <string name="developer_team">doIT</string>
+    <string name="developer_belong_to">세종대학교 컴퓨터공학과</string>
+    <string name="developer_member_1">고용국</string>
+    <string name="developer_member_2">심재훈</string>
+    <string name="developer_member_3">심효빈</string>
+    <string name="developer_member_4">양경석</string>
+    <string name="developer_member_5">허한슬</string>
+    <string name="developer_exhibition">2017 한이음 공모전 출품 앱</string>
+
     <string name="error_title_network">네트워크에 연결되지 않았습니다.</string>
     <string name="error_body_network">로그인 서버에 접근할 수 없습니다.\n기기의 네트워크 연결 상태를 확인하여 주십시오.</string>
 
@@ -40,6 +49,7 @@
     <string name="info_load_list_data">이용자 데이터 처리 중입니다.</string>
     <string name="info_login_failed">로그인에 실패하였습니다.</string>
     <string name="info_emergency_delay">%1$d초 후 지정된 보호자에게 응급 푸쉬가 발송됩니다.</string>
+    <string name="info_beacon">비콘 정보를 가져오고 있습니다.</string>
     <string name="info_location">위치 정보를 가져오고 있습니다.</string>
     <string name="info_send_push">지정된 모든 보호자에게 낙상사고를 알리는 중입니다.</string>
     <string name="info_send_push_complete">지정된 모든 보호자에게 낙상사고 발생을 통보하였습니다.</string>
@@ -89,9 +99,12 @@
     <string name="pref_description_recommend_notifications">앱 푸시 수신이 거부 상태일 때 푸시 수신을 권장하는 안내를 제공받을 수 있습니다.</string>
 
     <string name="pref_header_information">정보</string>
-    <string name="pref_app_version">앱 버전: v 0.1</string>
-    <string name="pref_developer">기획/개발: doIT (세종대학교 컴퓨터공학과)</string>
-    <string name="pref_mentor">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
+    <string name="pref_app_version">앱 버전</string>
+    <string name="pref_app_version_summary">v 0.1</string>
+    <string name="pref_developer">기획/개발</string>
+    <string name="pref_developer_summary">doIT (세종대학교 컴퓨터공학과)</string>
+    <string name="pref_mentor">도움</string>
+    <string name="pref_mentor_summary">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
     <string name="pref_project">2017 한이음 공모전 출품 앱</string>
     <string name="pref_open_source_license">오픈 소스 라이선스</string>
 </resources>

@@ -25,16 +25,16 @@ import com.google.android.gms.wearable.Wearable;
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static String SERVICE_CALLED_WEAR = "WearFallRecognition";
 
-    private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient googleApiClient;
     private Vibrator vibrator;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
     private WatchViewStub stub;
-    private TextView mTextView;
+    private TextView textView;
 
-    private Node mNode;
-    private boolean mResolvingError = false;
+    private Node node;
+    private boolean resolvingError = false;
     private int timerCount;
 
     @Override
@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                mTextView = (TextView) stub.findViewById(R.id.text);
+                textView = (TextView) stub.findViewById(R.id.text);
             }
         });
         stub.setOnClickListener(new View.OnClickListener() {
@@ -84,10 +84,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                         vibrator.cancel();
                     }
 
-                    mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    mTextView.setText("낙상 응급 알림이 중단되었습니다.");
-                    mTextView.setTextSize(14);
-                    mTextView.setTextColor(Color.rgb(160, 165, 167));
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    textView.setText("낙상 응급 알림이 중단되었습니다.");
+                    textView.setTextSize(14);
+                    textView.setTextColor(Color.rgb(160, 165, 167));
                     stub.setBackgroundColor(Color.rgb(35, 46, 51));
 
                     editor.putBoolean("fall", false);
@@ -100,37 +100,37 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
+        if (!resolvingError) {
+            googleApiClient.connect();
         }
     }
 
     Handler delayTimer = new Handler() {
         public void handleMessage(Message msg) {
             if (pref.getBoolean("fall", false)) {
-                mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
                 if (timerCount == 15 || timerCount == 14) {
-                    mTextView.setText("낙상으로 인식되었습니다\n\n화면을 터치하면 알림이 중단됩니다");
-                    mTextView.setTextSize(14);
+                    textView.setText("낙상으로 인식되었습니다\n\n화면을 터치하면 알림이 중단됩니다");
+                    textView.setTextSize(14);
                 } else if (timerCount % 5 == 0 || timerCount % 5 == 4) {
-                    mTextView.setText(timerCount + "초 남았습니다\n\n화면을 터치하면 알림이 중단됩니다");
-                    mTextView.setTextSize(14);
+                    textView.setText(timerCount + "초 남았습니다\n\n화면을 터치하면 알림이 중단됩니다");
+                    textView.setTextSize(14);
                 } else {
-                    mTextView.setText(timerCount + "");
-                    mTextView.setTextSize(150);
+                    textView.setText(timerCount + "");
+                    textView.setTextSize(150);
                 }
 
-                mTextView.setTextColor(Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 stub.setBackgroundColor(Color.rgb(25, 204, 149));
 
                 if (timerCount-- > 0) {
                     delayTimer.sendEmptyMessageDelayed(0, 1000);
                 } else {
-                    mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    mTextView.setTextSize(14);
-                    mTextView.setText("등록된 모든 보호자에게\n응급 푸쉬가 발송되었습니다");
-                    mTextView.setTextColor(Color.rgb(0, 0, 0));
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    textView.setTextSize(14);
+                    textView.setText("등록된 모든 보호자에게\n응급 푸쉬가 발송되었습니다");
+                    textView.setTextColor(Color.rgb(0, 0, 0));
                     stub.setBackgroundColor(Color.rgb(250, 237, 125));
 
                     stub.setOnClickListener(null);
@@ -153,12 +153,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
+        Wearable.NodeApi.getConnectedNodes(googleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
                     public void onResult(@NonNull NodeApi.GetConnectedNodesResult nodes) {
                         for (Node node : nodes.getNodes()) {
-                            mNode = node;
+                            MainActivity.this.node = node;
                         }
                     }
                 });
@@ -191,9 +191,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      * Send message to mobile handheld
      */
     private void sendMessage(String Key) {
-        if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
+        if (node != null && googleApiClient != null && googleApiClient.isConnected()) {
             Wearable.MessageApi.sendMessage(
-                    mGoogleApiClient, mNode.getId(), SERVICE_CALLED_WEAR + "--" + Key, null).setResultCallback(
+                    googleApiClient, node.getId(), SERVICE_CALLED_WEAR + "--" + Key, null).setResultCallback(
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
                         public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {

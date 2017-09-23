@@ -55,36 +55,278 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     ​
-                    <FrameLayout
+                    <LinearLayout
                         android:id="@+id/cell_content_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/colorAccent"
+                        android:orientation="vertical"
                         android:visibility="gone">
 
-                        <TextView
-                            android:text="Hello World! - 1"
+                        <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="250dp"
-                            android:layout_marginTop="10dp"
-                            android:background="#FFFFFF"/>
+                            android:layout_height="match_parent"
+                            android:background="@color/colorAccent"
+                            android:paddingBottom="7dp"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:paddingTop="7dp">
 
-                    </FrameLayout>
-                    ​
-                    <FrameLayout
+                            <TextView
+                                android:id="@+id/cell_header_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="기본 정보"
+                                android:textColor="@android:color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                app:srcCompat="@drawable/ic_edit_24dp" />
+
+                        </RelativeLayout>
+
+                        <!-- content body layout -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/colorPrimary"
+                            android:orientation="vertical"
+                            android:paddingBottom="6dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="9dp">
+
+                            <!-- user data -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="2">
+
+                                    <TextView
+                                        android:id="@+id/content_title_birth"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="생년월일" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_birth"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_birth"
+                                        android:layout_below="@id/content_title_birth"
+                                        android:text="1995/07/31"
+                                        android:textColor="#343d43"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/content_detail_birth"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_body_birth"
+                                        android:layout_below="@id/content_body_birth"
+                                        android:text="23세"
+                                        android:textColor="#343d43"
+                                        android:textSize="14sp" />
+                                </RelativeLayout>
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_gender"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="성별" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_gender"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_gender"
+                                        android:layout_below="@id/content_title_gender"
+                                        android:text="남성"
+                                        android:textColor="#343d43"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/content_detail_gender"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_body_gender"
+                                        android:layout_below="@id/content_body_gender"
+                                        android:text="Male"
+                                        android:textColor="#343d43"
+                                        android:textSize="14sp" />
+                                </RelativeLayout>
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_blood_type"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="혈액형" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_blood_type"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_blood_type"
+                                        android:layout_below="@id/content_title_blood_type"
+                                        android:text="A형"
+                                        android:textColor="#343d43"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/content_detail_blood_type"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_body_blood_type"
+                                        android:layout_below="@id/content_body_blood_type"
+                                        android:text="Rh+"
+                                        android:textColor="#343d43"
+                                        android:textSize="14sp" />
+                                </RelativeLayout>
+                            </LinearLayout>
+
+
+                            <!-- divider line -->
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginBottom="6dp"
+                                android:layout_marginTop="9dp"
+                                android:src="@color/contentDividerLine" />
+
+                            <!-- address -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_address"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="병력" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_address"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_address"
+                                        android:layout_below="@id/content_title_address"
+                                        android:text="등록된 병력이 없습니다."
+                                        android:textColor="#343d43"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/content_detail_address"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_body_address"
+                                        android:layout_below="@id/content_body_address"
+                                        android:text="병력이 있다면 등록해주세요."
+                                        android:textColor="#343d43"
+                                        android:textSize="14sp" />
+
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="등록된 정보는 낙상 사고 발생 시 보호자에게 전송됩니다."
+                                android:textAlignment="center"
+                                android:textColor="#a9a9a9"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/cell_title_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/colorAccent">
+                        android:background="@color/colorPrimary"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:text="Hello World! - 2"
+                        <!-- LEFT TITLE PART -->
+                        <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:layout_marginLeft="10dp"
-                            android:background="#FFFFFF" />
+                            android:layout_height="80dp"
+                            android:layout_weight="3"
+                            android:background="@color/colorAccent"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
 
-                    </FrameLayout>​
+                            <TextView
+                                android:id="@+id/title_number"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/white"
+                                android:textSize="30sp"
+                                android:text="1"/>
+
+                        </RelativeLayout>
+                        <!-- RIGHT TITLE PART -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@color/colorPrimary"
+                            android:paddingBottom="20dp"
+                            android:paddingEnd="20dp"
+                            android:paddingStart="15dp"
+                            android:paddingTop="20dp">
+
+                            <TextView
+                                android:id="@+id/title_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/black"
+                                android:textSize="20sp"
+                                android:text="기본 정보"/>
+
+                        </RelativeLayout>
+                    </LinearLayout>​
 
                 </com.ramotion.foldingcell.FoldingCell>
 
@@ -98,7 +340,11 @@
                 android:id="@+id/newContactsButton"
                 android:textSize="16sp"
                 android:layout_marginRight="6dp"
-                android:layout_marginLeft="6dp"/>
+                android:layout_marginLeft="6dp"
+                android:background="@color/colorAccent"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"/>
         </LinearLayout>
 
     </android.support.v4.widget.SwipeRefreshLayout>
