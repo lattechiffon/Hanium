@@ -154,7 +154,7 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                     .add("token", push)
                     .build();
             Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/register.php")
+                    .url("http://104.199.248.120/register.php")
                     .post(body)
                     .build();
 

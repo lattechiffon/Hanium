@@ -147,7 +147,7 @@ public class ContactsActivity extends AppCompatActivity {
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
             Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/contacts_processing.php")
+                    .url("http://104.199.248.120/contacts_processing.php")
                     .post(body)
                     .build();
 

@@ -145,7 +145,7 @@ public class SplashActivity extends Activity {
                     .add("token", push)
                     .build();
             Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/login.php")
+                    .url("http://104.199.248.120/login.php")
                     .post(body)
                     .build();
 

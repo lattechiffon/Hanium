@@ -291,7 +291,7 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
             Request request = new Request.Builder()
-                    .url("http://www.lattechiffon.com/hanium/send_notification.php")
+                    .url("http://104.199.248.120/send_notification.php")
                     .post(body)
                     .build();
 
