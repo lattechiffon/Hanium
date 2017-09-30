@@ -54,8 +54,7 @@
                     android:id="@+id/folding_cell"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    ​
-                    <LinearLayout
+                    ​<LinearLayout
                         android:id="@+id/cell_content_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -332,19 +331,373 @@
 
             </FrameLayout>
 
-            <Button
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="새로운 연락처 등록"
-                android:id="@+id/newContactsButton"
-                android:textSize="16sp"
-                android:layout_marginRight="6dp"
-                android:layout_marginLeft="6dp"
-                android:background="@color/colorAccent"
-                android:padding="10dp"
-                android:textAlignment="center"
-                android:textColor="@android:color/white"/>
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp">
+
+                <com.ramotion.foldingcell.FoldingCell
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/folding_cell_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    ​
+                    <LinearLayout
+                        android:id="@+id/cell_2_content_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/colorAccent"
+                            android:paddingBottom="7dp"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:paddingTop="7dp">
+
+                            <TextView
+                                android:id="@+id/cell_2_header_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="보호자 정보"
+                                android:textColor="@android:color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                        </RelativeLayout>
+
+                        <!-- content body layout -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/colorPrimary"
+                            android:orientation="vertical"
+                            android:paddingBottom="6dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="9dp">
+
+                            <!-- protectors -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_protector"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="등록된 보호자 인원" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_protector"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_protector"
+                                        android:layout_below="@id/content_title_protector"
+                                        android:text="0명"
+                                        android:textColor="#343d43"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <Button
+                                android:id="@+id/newContactsButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:background="@color/colorAccent"
+                                android:padding="10dp"
+                                android:text="새로운 보호자 지정"
+                                android:textAlignment="center"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="보호자는 반드시 지정하여야 합니다."
+                                android:textAlignment="center"
+                                android:textColor="#a9a9a9"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cell_2_title_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorPrimary"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <!-- LEFT TITLE PART -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:layout_weight="3"
+                            android:background="@color/colorAccent"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
+
+                            <TextView
+                                android:id="@+id/title_number_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/white"
+                                android:textSize="30sp"
+                                android:text="2"/>
+
+                        </RelativeLayout>
+                        <!-- RIGHT TITLE PART -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@color/colorPrimary"
+                            android:paddingBottom="20dp"
+                            android:paddingEnd="20dp"
+                            android:paddingStart="15dp"
+                            android:paddingTop="20dp">
+
+                            <TextView
+                                android:id="@+id/title_text_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/black"
+                                android:textSize="20sp"
+                                android:text="보호자 정보"/>
+
+                        </RelativeLayout>
+                    </LinearLayout>​
+
+                </com.ramotion.foldingcell.FoldingCell>
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp">
+
+                <com.ramotion.foldingcell.FoldingCell
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/folding_cell_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    ​
+                    <LinearLayout
+                        android:id="@+id/cell_3_content_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/colorAccent"
+                            android:paddingBottom="7dp"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:paddingTop="7dp">
+
+                            <TextView
+                                android:id="@+id/cell_3_header_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="실내 위치 정보"
+                                android:textColor="@android:color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                app:srcCompat="@drawable/ic_edit_24dp" />
+
+                        </RelativeLayout>
+
+                        <!-- content body layout -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/colorPrimary"
+                            android:orientation="vertical"
+                            android:paddingBottom="6dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="9dp">
+
+                            <!-- beacon location -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_beacon"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="비콘 설치 장소" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_beacon"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_beacon"
+                                        android:layout_below="@id/content_title_beacon"
+                                        android:text="집"
+                                        android:textColor="#343d43"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <!-- divider line -->
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginBottom="6dp"
+                                android:layout_marginTop="9dp"
+                                android:src="@color/contentDividerLine" />
+
+                            <!-- beacon data -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <RelativeLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/content_title_beacon_data"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:text="비콘 기기 정보" />
+
+                                    <TextView
+                                        android:id="@+id/content_body_beacon_data"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignStart="@id/content_title_beacon_data"
+                                        android:layout_below="@id/content_title_beacon_data"
+                                        android:text="일반 사용자는 확인 및 수정할 수 없습니다."
+                                        android:textColor="#343d43"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="비콘 영역으로 판단되면 실내 위치 정보가 활용됩니다."
+                                android:textAlignment="center"
+                                android:textColor="#a9a9a9"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cell_3_title_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorPrimary"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <!-- LEFT TITLE PART -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:layout_weight="3"
+                            android:background="@color/colorAccent"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
+
+                            <TextView
+                                android:id="@+id/title_number_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/white"
+                                android:textSize="30sp"
+                                android:text="3"/>
+
+                        </RelativeLayout>
+                        <!-- RIGHT TITLE PART -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@color/colorPrimary"
+                            android:paddingBottom="20dp"
+                            android:paddingEnd="20dp"
+                            android:paddingStart="15dp"
+                            android:paddingTop="20dp">
+
+                            <TextView
+                                android:id="@+id/title_text_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textColor="@android:color/black"
+                                android:textSize="20sp"
+                                android:text="실내 위치 정보"/>
+
+                        </RelativeLayout>
+                    </LinearLayout>​
+
+                </com.ramotion.foldingcell.FoldingCell>
+
+            </FrameLayout>
         </LinearLayout>
 
     </android.support.v4.widget.SwipeRefreshLayout>

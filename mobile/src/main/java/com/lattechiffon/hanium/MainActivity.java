@@ -127,11 +127,34 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final FoldingCell fc = (FoldingCell) findViewById(R.id.folding_cell);
+        final FoldingCell fc2 = (FoldingCell) findViewById(R.id.folding_cell_2);
+        final FoldingCell fc3 = (FoldingCell) findViewById(R.id.folding_cell_3);
+
         fc.setOnClickListener(new View.OnClickListener() {
            @Override
             public void onClick(View v) {
                fc.toggle(false);
+               fc2.fold(false);
+               fc3.fold(false);
            }
+        });
+
+        fc2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fc.fold(false);
+                fc2.toggle(false);
+                fc3.fold(false);
+            }
+        });
+
+        fc3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fc.fold(false);
+                fc2.fold(false);
+                fc3.toggle(false);
+            }
         });
 
         adapter = new FallingRecordListViewAdapter();
