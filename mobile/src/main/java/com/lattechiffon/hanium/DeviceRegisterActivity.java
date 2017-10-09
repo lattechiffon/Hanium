@@ -178,7 +178,7 @@ public class DeviceRegisterActivity extends AppCompatActivity {
                     editor.putBoolean("deviceRegister", true);
                     editor.putString("name", name);
                     editor.putString("phone", phone);
-                    editor.commit();
+                    editor.apply();
 
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {

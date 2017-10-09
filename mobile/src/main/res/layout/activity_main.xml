@@ -75,7 +75,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="기본 정보"
+                                android:text="@string/main_cell_header_1"
                                 android:textColor="@android:color/white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -108,6 +108,7 @@
                                 android:orientation="horizontal">
 
                                 <RelativeLayout
+                                    android:id="@+id/content_birth"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="2">
@@ -117,7 +118,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="생년월일" />
+                                        android:text="@string/main_cell_title_birth" />
 
                                     <TextView
                                         android:id="@+id/content_body_birth"
@@ -125,7 +126,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_title_birth"
                                         android:layout_below="@id/content_title_birth"
-                                        android:text="1995/07/31"
+                                        android:text="@string/main_cell_body_birth"
                                         android:textColor="#343d43"
                                         android:textSize="18sp"
                                         android:textStyle="bold" />
@@ -136,12 +137,13 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_body_birth"
                                         android:layout_below="@id/content_body_birth"
-                                        android:text="23세"
+                                        android:text="@string/main_cell_detail_birth"
                                         android:textColor="#343d43"
                                         android:textSize="14sp" />
                                 </RelativeLayout>
 
                                 <RelativeLayout
+                                    android:id="@+id/content_gender"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1">
@@ -151,7 +153,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="성별" />
+                                        android:text="@string/main_cell_title_gender" />
 
                                     <TextView
                                         android:id="@+id/content_body_gender"
@@ -159,7 +161,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_title_gender"
                                         android:layout_below="@id/content_title_gender"
-                                        android:text="남성"
+                                        android:text="@string/main_cell_body_gender"
                                         android:textColor="#343d43"
                                         android:textSize="18sp"
                                         android:textStyle="bold" />
@@ -170,12 +172,13 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_body_gender"
                                         android:layout_below="@id/content_body_gender"
-                                        android:text="Male"
+                                        android:text="@string/main_cell_detail_gender"
                                         android:textColor="#343d43"
                                         android:textSize="14sp" />
                                 </RelativeLayout>
 
                                 <RelativeLayout
+                                    android:id="@+id/content_blood_type"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1">
@@ -185,7 +188,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="혈액형" />
+                                        android:text="@string/main_cell_title_blood_type" />
 
                                     <TextView
                                         android:id="@+id/content_body_blood_type"
@@ -193,7 +196,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_title_blood_type"
                                         android:layout_below="@id/content_title_blood_type"
-                                        android:text="A형"
+                                        android:text="@string/main_cell_body_blood_type"
                                         android:textColor="#343d43"
                                         android:textSize="18sp"
                                         android:textStyle="bold" />
@@ -204,7 +207,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_body_blood_type"
                                         android:layout_below="@id/content_body_blood_type"
-                                        android:text="Rh+"
+                                        android:text="@string/main_cell_detail_blood_type"
                                         android:textColor="#343d43"
                                         android:textSize="14sp" />
                                 </RelativeLayout>
@@ -219,7 +222,7 @@
                                 android:layout_marginTop="9dp"
                                 android:src="@color/contentDividerLine" />
 
-                            <!-- address -->
+                            <!-- disease -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -227,35 +230,36 @@
                                 android:orientation="horizontal">
 
                                 <RelativeLayout
+                                    android:id="@+id/content_disease"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1">
 
                                     <TextView
-                                        android:id="@+id/content_title_address"
+                                        android:id="@+id/content_title_disease"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="병력" />
+                                        android:text="@string/main_cell_title_disease" />
 
                                     <TextView
-                                        android:id="@+id/content_body_address"
+                                        android:id="@+id/content_body_disease"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_alignStart="@id/content_title_address"
-                                        android:layout_below="@id/content_title_address"
-                                        android:text="등록된 병력이 없습니다."
+                                        android:layout_alignStart="@id/content_title_disease"
+                                        android:layout_below="@id/content_title_disease"
+                                        android:text="@string/main_cell_body_disease"
                                         android:textColor="#343d43"
                                         android:textSize="18sp"
                                         android:textStyle="bold" />
 
                                     <TextView
-                                        android:id="@+id/content_detail_address"
+                                        android:id="@+id/content_detail_disease"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_alignStart="@id/content_body_address"
-                                        android:layout_below="@id/content_body_address"
-                                        android:text="병력이 있다면 등록해주세요."
+                                        android:layout_alignStart="@id/content_body_disease"
+                                        android:layout_below="@id/content_body_disease"
+                                        android:text="@string/main_cell_detail_disease"
                                         android:textColor="#343d43"
                                         android:textSize="14sp" />
 
@@ -266,7 +270,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="등록된 정보는 낙상 사고 발생 시 보호자에게 전송됩니다."
+                                android:text="@string/main_cell_help_1"
                                 android:textAlignment="center"
                                 android:textColor="#a9a9a9"
                                 android:textSize="12sp" />
@@ -322,7 +326,7 @@
                                 android:layout_centerInParent="true"
                                 android:textColor="@android:color/black"
                                 android:textSize="20sp"
-                                android:text="기본 정보"/>
+                                android:text="@string/main_cell_header_1"/>
 
                         </RelativeLayout>
                     </LinearLayout>​
@@ -365,7 +369,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="보호자 정보"
+                                android:text="@string/main_cell_header_2"
                                 android:textColor="@android:color/white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -400,7 +404,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="등록된 보호자 인원" />
+                                        android:text="@string/main_cell_title_protector" />
 
                                     <TextView
                                         android:id="@+id/content_body_protector"
@@ -408,7 +412,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignStart="@id/content_title_protector"
                                         android:layout_below="@id/content_title_protector"
-                                        android:text="0명"
+                                        android:text=""
                                         android:textColor="#343d43"
                                         android:textSize="24sp"
                                         android:textStyle="bold" />
@@ -423,7 +427,7 @@
                                 android:layout_marginTop="16dp"
                                 android:background="@color/colorAccent"
                                 android:padding="10dp"
-                                android:text="새로운 보호자 지정"
+                                android:text="@string/main_cell_new_protector"
                                 android:textAlignment="center"
                                 android:textColor="@android:color/white"
                                 android:textSize="16sp"/>
@@ -432,7 +436,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="보호자는 반드시 지정하여야 합니다."
+                                android:text="@string/main_cell_help_2"
                                 android:textAlignment="center"
                                 android:textColor="#a9a9a9"
                                 android:textSize="12sp" />
@@ -488,7 +492,7 @@
                                 android:layout_centerInParent="true"
                                 android:textColor="@android:color/black"
                                 android:textSize="20sp"
-                                android:text="보호자 정보"/>
+                                android:text="@string/main_cell_header_2"/>
 
                         </RelativeLayout>
                     </LinearLayout>​
@@ -531,7 +535,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="실내 위치 정보"
+                                android:text="@string/main_cell_header_3"
                                 android:textColor="@android:color/white"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -690,7 +694,7 @@
                                 android:layout_centerInParent="true"
                                 android:textColor="@android:color/black"
                                 android:textSize="20sp"
-                                android:text="실내 위치 정보"/>
+                                android:text="@string/main_cell_header_3"/>
 
                         </RelativeLayout>
                     </LinearLayout>​

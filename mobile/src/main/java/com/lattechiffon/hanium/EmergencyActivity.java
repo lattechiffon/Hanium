@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -61,7 +62,7 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
     private GoogleApiClient googleApiClient;
     private Vibrator vibrator;
     private BackgroundTask task;
-    private SharedPreferences pref, userPref;
+    private SharedPreferences pref, userPref, settingsPref;
     private SharedPreferences.Editor editor;
 
     private SubmitButton stopButton;
@@ -122,6 +123,7 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
 
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         userPref = getSharedPreferences("UserData", Activity.MODE_PRIVATE);
+        settingsPref = PreferenceManager.getDefaultSharedPreferences(this);
         editor = pref.edit();
 
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -214,8 +216,12 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
                     editor.putBoolean("fall", false);
                     editor.apply();
 
-                    task = new BackgroundTask();
-                    task.execute();
+                    if (settingsPref.getString("generals_notify_emergency", "1").equals("1")) {
+                        task = new BackgroundTask();
+                        task.execute();
+                    } else {
+                        // 문자 메시지 발송
+                    }
                 }
             }
         }
@@ -352,6 +358,11 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
 
             jsonDataObject.put("name", userPref.getString("name", "null"));
             jsonDataObject.put("phone", userPref.getString("phone", "null"));
+            jsonDataObject.put("birthday", userPref.getString("birthday", "미등록"));
+            jsonDataObject.put("gender", userPref.getString("gender", "미등록"));
+            jsonDataObject.put("bloodType", userPref.getString("bloodType", "미등록"));
+            jsonDataObject.put("rhType", userPref.getString("rhType", "미등록"));
+            jsonDataObject.put("diseaseRecord", userPref.getString("diseaseRecord", "미등록"));
             jsonObject.put("user", jsonDataObject);
 
             JSONObject jsonLocationDataObject = new JSONObject();

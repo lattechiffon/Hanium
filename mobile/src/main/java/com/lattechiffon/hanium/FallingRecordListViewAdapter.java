@@ -40,9 +40,9 @@ class FallingRecordListViewAdapter extends BaseAdapter {
         datetimeTextView.setText(listViewItem.getDatetime());
 
         if (listViewItem.getResult() == 1) {
-            resultTextView.setText("정상 인식");
+            resultTextView.setText(R.string.main_list_record_true);
         } else {
-            resultTextView.setText("잘못된 인식");
+            resultTextView.setText(R.string.main_list_record_false);
         }
 
         return convertView;

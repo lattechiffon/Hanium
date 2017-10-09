@@ -57,7 +57,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
      */
     boolean checkProtector(int userNo) {
         SQLiteDatabase db = getReadableDatabase();
-
         Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE userNo = " + userNo + " AND valid = 1;", null);
 
         int resultCount = cursor.getCount();
@@ -75,10 +74,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
      */
     String[] selectProtectorAll() {
         SQLiteDatabase db = getReadableDatabase();
-        int count = 0;
-
         Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE valid = 1 ORDER BY no DESC;", null);
 
+        int count = 0;
         int resultCount = cursor.getCount();
 
         if (resultCount == 0) {
@@ -103,23 +101,38 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * 보호자로 지정된 연락처의 수를 반환하는 메서드입니다.
+     *
+     * @return 등록된 보호자 수
+     */
+    int countProtector() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM CONTACTS WHERE valid = 1 ORDER BY no DESC;", null);
+
+        int count = cursor.getCount();
+
+        cursor.close();
+
+        return count;
+    }
+
+    /**
      * 모든 낙상사고 발생 기록을 반환하는 메서드입니다.
      *
      * @return 모든 낙상사고 발생 기록 관리 번호
      */
     String[][] selectFallingRecordAll() {
         SQLiteDatabase db = getReadableDatabase();
-        int count = 0;
-
         Cursor cursor = db.rawQuery("SELECT * FROM FALLING_RECORD WHERE valid = 1 ORDER BY no DESC;", null);
 
+        int count = 0;
         int resultCount = cursor.getCount();
 
         if (resultCount == 0) {
             String[][] retStr = new String[1][4];
 
             retStr[0][0] = "0";
-            retStr[0][1] = "낙상 인식 기록이 없습니다.";
+            retStr[0][1] = "null";
             retStr[0][2] = "1";
             retStr[0][3] = "0";
 
@@ -149,8 +162,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
      */
     int selectTopNo() {
         SQLiteDatabase db = getReadableDatabase();
-
         Cursor cursor = db.rawQuery("SELECT no FROM FALLING_RECORD ORDER BY no DESC LIMIT 1;", null);
+
         cursor.moveToNext();
 
         int retInt = cursor.getInt(0);

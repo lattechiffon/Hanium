@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="gender_array">
+        <item>@string/main_cell_body_gender_male</item>
+        <item>@string/main_cell_body_gender_female</item>
+    </string-array>
+
+    <string-array name="blood_type_array">
+        <item>A/Rh+</item>
+        <item>A/Rh-</item>
+        <item>B/Rh+</item>
+        <item>B/Rh-</item>
+        <item>AB/Rh+</item>
+        <item>AB/Rh-</item>
+        <item>O/Rh+</item>
+        <item>O/Rh-</item>
+    </string-array>
+
     <string-array name="notify_emergency_entries">
         <item>푸시 서버 이용</item>
         <item>문자 메시지 전송</item>

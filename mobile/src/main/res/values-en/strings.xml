@@ -17,6 +17,38 @@
     <string name="main_sliding_up_panel_title_list_empty">No fall detection record so far.</string>
     <string name="main_sliding_up_panel_title">Fall has been detected %1$d time(s) so far.</string>
 
+    <string name="main_cell_header_1">Personal Info.</string>
+    <string name="main_cell_title_birth">Birth Date</string>
+    <string name="main_cell_body_birth"> </string>
+    <string name="main_cell_detail_birth">Age %1$d</string>
+    <string name="main_cell_title_gender">Gender</string>
+    <string name="main_cell_body_gender"> </string>
+    <string name="main_cell_body_gender_male">Male</string>
+    <string name="main_cell_body_gender_female">Female</string>
+    <string name="main_cell_detail_gender"> </string>
+    <string name="main_cell_detail_gender_male"> </string>
+    <string name="main_cell_detail_gender_female"> </string>
+    <string name="main_cell_title_blood_type">Blood Type</string>
+    <string name="main_cell_body_blood_type"> </string>
+    <string name="main_cell_detail_blood_type"> </string>
+    <string name="main_cell_title_disease">Disease Record</string>
+    <string name="main_cell_body_disease"> </string>
+    <string name="main_cell_detail_disease">Please register your disease record if you have.</string>
+    <string name="main_cell_help_1">This data will use when fall accident is occurred.</string>
+    <string name="main_cell_not_register">Not reg.</string>
+
+    <string name="main_cell_header_2">Protector Info.</string>
+    <string name="main_cell_title_protector">The number of protectors</string>
+    <string name="main_cell_body_protector">Total %1$d</string>
+    <string name="main_cell_new_protector">Selecting New Protector</string>
+    <string name="main_cell_help_2">Protector must be registered.</string>
+
+    <string name="main_cell_header_3">Indoor Location Info.</string>
+
+    <string name="main_list_empty">No records.</string>
+    <string name="main_list_record_true">Correct recognition.</string>
+    <string name="main_list_record_false">Incorrect recognition.</string>
+
     <string name="device_register_title">Welcome</string>
     <string name="device_register_title_error">Device registration failed</string>
     <string name="device_register_title2">Let me know your name</string>
@@ -70,10 +102,14 @@
     <string name="permission_dialog_title_read_phone_state">잠시 후 앱에서 요청하는 이용자 기기 상태 데이터 접근 권한을 허용해주세요.</string>
     <string name="permission_dialog_body_read_phone_state">이용자 기기의 전화번호를 가져오기 위해서는 이용자 기기 상태 데이터 접근 권한이 필요합니다.</string>
 
+    <string name="permission_dialog_title_send_sms">잠시 후 앱에서 요청하는 문자 메시지 발신 권한을 허용해주세요.</string>
+    <string name="permission_dialog_body_send_sms">낙상 발생 시 보호자에게 문자 메시지를 이용하여 사고를 통지하기 위해서는 문자 메시지 발신 권한이 필요합니다.</string>
+
     <string name="permission_dialog_title_deny">필수 접근 권한 거부</string>
     <string name="permission_toast_allow_access_fine_location">위치 데이터 접근 권한을 허용하셨습니다.</string>
     <string name="permission_toast_allow_read_contacts">연락처 데이터 접근 권한을 허용하셨습니다.</string>
     <string name="permission_toast_allow_read_phone_state">이용자 기기 상태 데이터 접근 권한을 허용하셨습니다.</string>
+    <string name="permission_toast_allow_send_sms">문자 메시지 발신 권한을 허용하셨습니다.</string>
 
 
     <!-- 설정 -->
@@ -81,8 +117,8 @@
     <string name="action_settings">Settings</string>
 
     <string name="pref_header_generals">Generals</string>
-    <string name="pref_generals_category_1">낙상사고 통지</string>
-    <string name="pref_title_notify_emergency">전송 방법</string>
+    <string name="pref_generals_category_1">Fall notification</string>
+    <string name="pref_title_notify_emergency">Transfer method</string>
 
     <string name="pref_header_modes">User Modes</string>
     <string name="pref_title_user_mode">Switch to protector mode</string>
@@ -91,10 +127,10 @@
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_title_new_message_notifications">Receive app push</string>
     <string name="pref_description_new_message_notifications">앱 푸시를 수신하게 되면 새로운 정보를 실시간으로 제공받을 수 있습니다.</string>
-    <string name="pref_title_ringtone">푸시 알림음</string>
-    <string name="pref_ringtone_silent">무음</string>
-    <string name="pref_title_vibrate">푸시 진동</string>
-    <string name="pref_title_recommend_notifications">앱 푸시 권장 안내</string>
+    <string name="pref_title_ringtone">Sound</string>
+    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="pref_title_recommend_notifications">Recommend</string>
     <string name="pref_description_recommend_notifications">앱 푸시 수신이 거부 상태일 때 푸시 수신을 권장하는 안내를 제공받을 수 있습니다.</string>
 
     <string name="pref_header_information">Information</string>

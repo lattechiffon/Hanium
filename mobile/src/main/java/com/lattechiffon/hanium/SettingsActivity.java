@@ -1,8 +1,11 @@
 package com.lattechiffon.hanium;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -15,9 +18,14 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -33,6 +41,8 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+    public final int PERMISSIONS_SEND_SMS = 4;
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -178,14 +188,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+        public final int PERMISSIONS_SEND_SMS = 4;
+
+        SharedPreferences pref;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
+            pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             pref.registerOnSharedPreferenceChangeListener(this);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -193,6 +206,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("generals_notify_emergency"));
+
+            if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.SEND_SMS)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(getString(R.string.permission_dialog_title_send_sms));
+                    builder.setMessage(getString(R.string.permission_dialog_body_send_sms)).setCancelable(false).setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.SEND_SMS}, PERMISSIONS_SEND_SMS);
+                            }
+                        });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.SEND_SMS}, PERMISSIONS_SEND_SMS);
+                }
+            }
         }
 
         @Override
@@ -207,7 +236,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
+            if (key.equals("generals_notify_emergency")) {
+                if (pref.getString("generals_notify_emergency", "1").equals("2")) {
 
+                }
+            }
         }
     }
 
@@ -309,4 +342,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_SEND_SMS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, getString(R.string.permission_toast_allow_send_sms), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
 }

@@ -18,6 +18,38 @@
     <string name="main_sliding_up_panel_title_list_empty">지금까지 낙상 감지 기록이 없습니다.</string>
     <string name="main_sliding_up_panel_title">지금까지 낙상이 %1$d번 감지되었습니다.</string>
 
+    <string name="main_cell_header_1">기본 정보</string>
+    <string name="main_cell_title_birth">생년월일</string>
+    <string name="main_cell_body_birth"> </string>
+    <string name="main_cell_detail_birth">만 %1$d세</string>
+    <string name="main_cell_title_gender">성별</string>
+    <string name="main_cell_body_gender"> </string>
+    <string name="main_cell_body_gender_male">남성</string>
+    <string name="main_cell_body_gender_female">여성</string>
+    <string name="main_cell_detail_gender"> </string>
+    <string name="main_cell_detail_gender_male">Male</string>
+    <string name="main_cell_detail_gender_female">Female</string>
+    <string name="main_cell_title_blood_type">혈액형</string>
+    <string name="main_cell_body_blood_type"> </string>
+    <string name="main_cell_detail_blood_type"> </string>
+    <string name="main_cell_title_disease">병력</string>
+    <string name="main_cell_body_disease"> </string>
+    <string name="main_cell_detail_disease">병력이 있다면 등록해주세요.</string>
+    <string name="main_cell_help_1">등록된 정보는 낙상 사고 발생 시 보호자에게 전송됩니다.</string>
+    <string name="main_cell_not_register">미등록</string>
+
+    <string name="main_cell_header_2">보호자 정보</string>
+    <string name="main_cell_title_protector">등록된 보호자 인원</string>
+    <string name="main_cell_body_protector">총 %1$d명</string>
+    <string name="main_cell_new_protector">새로운 보호자 지정</string>
+    <string name="main_cell_help_2">보호자를 반드시 지정하여야 합니다.</string>
+
+    <string name="main_cell_header_3">실내 위치 정보</string>
+
+    <string name="main_list_empty">낙상 감지 기록이 없습니다.</string>
+    <string name="main_list_record_true">정상 감지</string>
+    <string name="main_list_record_false">잘못된 감지</string>
+
     <string name="device_register_title">반갑습니다</string>
     <string name="device_register_title_error">기기 등록을 실패하였습니다</string>
     <string name="device_register_title2">당신의 이름을 알려주세요</string>
@@ -71,10 +103,14 @@
     <string name="permission_dialog_title_read_phone_state">잠시 후 앱에서 요청하는 이용자 기기 상태 데이터 접근 권한을 허용해주세요.</string>
     <string name="permission_dialog_body_read_phone_state">이용자 기기의 전화번호를 가져오기 위해서는 이용자 기기 상태 데이터 접근 권한이 필요합니다.</string>
 
+    <string name="permission_dialog_title_send_sms">잠시 후 앱에서 요청하는 문자 메시지 발신 권한을 허용해주세요.</string>
+    <string name="permission_dialog_body_send_sms">낙상 발생 시 보호자에게 문자 메시지를 이용하여 사고를 통지하기 위해서는 문자 메시지 발신 권한이 필요합니다.</string>
+
     <string name="permission_dialog_title_deny">필수 접근 권한 거부</string>
     <string name="permission_toast_allow_access_fine_location">위치 데이터 접근 권한을 허용하셨습니다.</string>
     <string name="permission_toast_allow_read_contacts">연락처 데이터 접근 권한을 허용하셨습니다.</string>
     <string name="permission_toast_allow_read_phone_state">이용자 기기 상태 데이터 접근 권한을 허용하셨습니다.</string>
+    <string name="permission_toast_allow_send_sms">문자 메시지 발신 권한을 허용하셨습니다.</string>
 
 
     <!-- 설정 -->
@@ -104,7 +140,7 @@
     <string name="pref_developer">기획/개발</string>
     <string name="pref_developer_summary">doIT (세종대학교 컴퓨터공학과)</string>
     <string name="pref_mentor">도움</string>
-    <string name="pref_mentor_summary">도움: 신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
+    <string name="pref_mentor_summary">신재용 멘토님 ((주)데이타뱅크시스템즈)</string>
     <string name="pref_project">2017 한이음 공모전 출품 앱</string>
     <string name="pref_open_source_license">오픈 소스 라이선스</string>
 </resources>
