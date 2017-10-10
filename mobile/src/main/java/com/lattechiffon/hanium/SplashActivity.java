@@ -105,6 +105,7 @@ public class SplashActivity extends Activity {
                         public void run() {
                             startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                             SplashActivity.this.finish();
+                            overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                         }
                     }, 1000);
                 }
@@ -169,6 +170,7 @@ public class SplashActivity extends Activity {
                 if (json.getString("result").equals("Authorized")) {
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
+                    overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                 } else {
                     editor.putBoolean("deviceRegister", false);
                     editor.commit();
@@ -177,6 +179,7 @@ public class SplashActivity extends Activity {
 
                     startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                     finish();
+                    overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                 }
 
             } catch (Exception e) {
@@ -187,6 +190,7 @@ public class SplashActivity extends Activity {
 
                 startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                 finish();
+                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
             }
         }
     }
@@ -229,6 +233,7 @@ public class SplashActivity extends Activity {
                             public void run() {
                                 startActivity(new Intent(getApplicationContext(), DeviceRegisterActivity.class));
                                 SplashActivity.this.finish();
+                                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                             }
                         }, 1000);
                     }

@@ -44,6 +44,11 @@
     <string name="main_cell_help_2">Protector must be registered.</string>
 
     <string name="main_cell_header_3">Indoor Location Info.</string>
+    <string name="main_cell_title_beacon_location">Beacon Location</string>
+    <string name="main_cell_body_beacon_location">Home</string>
+    <string name="main_cell_title_beacon_device">Beacon Device Info.</string>
+    <string name="main_cell_body_beacon_device">General user is not permitted to access.</string>
+    <string name="main_cell_help_3">This data will use when you are in beacon range.</string>
 
     <string name="main_list_empty">No records.</string>
     <string name="main_list_record_true">Correct recognition.</string>
@@ -52,10 +57,10 @@
     <string name="device_register_title">Welcome</string>
     <string name="device_register_title_error">Device registration failed</string>
     <string name="device_register_title2">Let me know your name</string>
-    <string name="device_register_title2_change">Let me know your phone number</string>
+    <string name="device_register_title2_change">Let me know phone number</string>
     <string name="device_register_title2_error">Please try again</string>
     <string name="device_register_info">To use the service, you must register your device on the server.</string>
-    <string name="device_register_info2">By completing this process, you are agreeing to allow device registration.</string>
+    <string name="device_register_info2">By completing below, you are agreeing to allow registration.</string>
     <string name="device_register_edit_text">Please input your name</string>
     <string name="device_register_edit_text_phone">Please input your phone number</string>
     <string name="device_register_button_register">Registration</string>

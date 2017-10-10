@@ -375,13 +375,13 @@ public class EmergencyActivity extends AppCompatActivity implements GoogleApiCli
             if (pref.getBoolean("beacon", false)) {
                 JSONObject jsonBeaconDataObject = new JSONObject();
 
-                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "집"));
+                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", getString(R.string.main_cell_body_beacon_location)));
                 jsonBeaconDataObject.put("distance", beaconDistance);
                 jsonObject.put("beacon", jsonBeaconDataObject);
             } else {
                 JSONObject jsonBeaconDataObject = new JSONObject();
 
-                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", "empty"));
+                jsonBeaconDataObject.put("spot", userPref.getString("beacon_spot", getString(R.string.main_cell_body_beacon_location)));
                 jsonBeaconDataObject.put("distance", -1);
                 jsonObject.put("beacon", jsonBeaconDataObject);
             }

@@ -568,24 +568,25 @@
                                 android:orientation="horizontal">
 
                                 <RelativeLayout
+                                    android:id="@+id/content_beacon_location"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1">
 
                                     <TextView
-                                        android:id="@+id/content_title_beacon"
+                                        android:id="@+id/content_title_beacon_location"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="비콘 설치 장소" />
+                                        android:text="@string/main_cell_title_beacon_location" />
 
                                     <TextView
-                                        android:id="@+id/content_body_beacon"
+                                        android:id="@+id/content_body_beacon_location"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_alignStart="@id/content_title_beacon"
-                                        android:layout_below="@id/content_title_beacon"
-                                        android:text="집"
+                                        android:layout_alignStart="@id/content_title_beacon_location"
+                                        android:layout_below="@id/content_title_beacon_location"
+                                        android:text="@string/main_cell_body_beacon_location"
                                         android:textColor="#343d43"
                                         android:textSize="24sp"
                                         android:textStyle="bold" />
@@ -614,19 +615,19 @@
                                     android:layout_weight="1">
 
                                     <TextView
-                                        android:id="@+id/content_title_beacon_data"
+                                        android:id="@+id/content_title_beacon_device"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentStart="true"
-                                        android:text="비콘 기기 정보" />
+                                        android:text="@string/main_cell_title_beacon_device" />
 
                                     <TextView
-                                        android:id="@+id/content_body_beacon_data"
+                                        android:id="@+id/content_body_beacon_device"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_alignStart="@id/content_title_beacon_data"
-                                        android:layout_below="@id/content_title_beacon_data"
-                                        android:text="일반 사용자는 확인 및 수정할 수 없습니다."
+                                        android:layout_alignStart="@id/content_title_beacon_device"
+                                        android:layout_below="@id/content_title_beacon_device"
+                                        android:text="@string/main_cell_body_beacon_device"
                                         android:textColor="#343d43"
                                         android:textSize="16sp"
                                         android:textStyle="bold" />
@@ -638,7 +639,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="비콘 영역으로 판단되면 실내 위치 정보가 활용됩니다."
+                                android:text="@string/main_cell_help_3"
                                 android:textAlignment="center"
                                 android:textColor="#a9a9a9"
                                 android:textSize="12sp" />

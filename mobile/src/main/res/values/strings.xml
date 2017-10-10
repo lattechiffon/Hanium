@@ -45,6 +45,11 @@
     <string name="main_cell_help_2">보호자를 반드시 지정하여야 합니다.</string>
 
     <string name="main_cell_header_3">실내 위치 정보</string>
+    <string name="main_cell_title_beacon_location">비콘 설치 장소</string>
+    <string name="main_cell_body_beacon_location">집</string>
+    <string name="main_cell_title_beacon_device">비콘 기기 정보</string>
+    <string name="main_cell_body_beacon_device">일반 사용자는 확인 및 수정할 수 없습니다.</string>
+    <string name="main_cell_help_3">비콘 영역으로 판단되면 실내 위치 정보가 활용됩니다.</string>
 
     <string name="main_list_empty">낙상 감지 기록이 없습니다.</string>
     <string name="main_list_record_true">정상 감지</string>

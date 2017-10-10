@@ -128,6 +128,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
         setupActionBar();
     }
 
@@ -136,9 +137,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             this.onBackPressed();
+
             return true;
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super .onBackPressed();
+        overridePendingTransition(R.anim.slide_enter, R.anim.slide_exit);
     }
 
     /**

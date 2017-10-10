@@ -13,11 +13,17 @@ public class OpenSourceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
         setContentView(R.layout.activity_open_source);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.activity_open_source));
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+        super .onBackPressed();
+        overridePendingTransition(R.anim.slide_enter, R.anim.slide_exit);
     }
 }

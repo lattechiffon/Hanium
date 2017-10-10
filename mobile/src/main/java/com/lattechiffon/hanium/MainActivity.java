@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     public final int PERMISSIONS_READ_CONTACTS = 2;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RelativeLayout birthLayout, genderLayout, bloodTypeLayout, diseaseLayout;
+    private RelativeLayout birthLayout, genderLayout, bloodTypeLayout, diseaseLayout, beaconLocationLayout;
     private FallingRecordListViewAdapter adapter;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         genderLayout = (RelativeLayout) findViewById(R.id.content_gender);
         bloodTypeLayout = (RelativeLayout) findViewById(R.id.content_blood_type);
         diseaseLayout = (RelativeLayout) findViewById(R.id.content_disease);
+        beaconLocationLayout = (RelativeLayout) findViewById((R.id.content_beacon_location));
 
         final TextView birthTextView = (TextView) findViewById(R.id.content_body_birth);
         final TextView ageTextView = (TextView) findViewById(R.id.content_detail_birth);
@@ -185,11 +186,13 @@ public class MainActivity extends AppCompatActivity {
         final TextView bloodTypeTextView = (TextView) findViewById(R.id.content_body_blood_type);
         final TextView bloodTypeDetailTextView = (TextView) findViewById(R.id.content_detail_blood_type);
         final TextView diseaseTextView = (TextView) findViewById(R.id.content_body_disease);
+        final TextView beaconLocationTextView = (TextView) findViewById(R.id.content_body_beacon_location);
 
         birthTextView.setText(pref.getString("birth", getString(R.string.main_cell_not_register)));
         bloodTypeTextView.setText(pref.getString("bloodType", getString(R.string.main_cell_not_register)));
         bloodTypeDetailTextView.setText(pref.getString("rhType", getString(R.string.main_cell_not_register)));
         diseaseTextView.setText(pref.getString("diseaseRecord", getString(R.string.main_cell_not_register)));
+        beaconLocationTextView.setText(pref.getString("beacon_spot", getString(R.string.main_cell_body_beacon_location)));
 
         int age = pref.getInt("age", -1);
         if (age != -1) {
@@ -230,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Calendar current = Calendar.getInstance();
                     year = current.get(Calendar.YEAR);
-                    month = current.get(Calendar.MONTH) + 1;
+                    month = current.get(Calendar.MONTH);
                     day = current.get(Calendar.DAY_OF_MONTH);
                 }
 
@@ -411,17 +414,58 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
+        beaconLocationLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                final EditText editText = new EditText(MainActivity.this);
+                editText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+                editText.setText(pref.getString("beacon_spot", getString(R.string.main_cell_body_beacon_location)));
+                editText.setSelection(editText.getText().length());
+
+                builder.setTitle(getString(R.string.main_cell_title_beacon_location))
+                        .setView(editText)
+                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                beaconLocationTextView.setText(editText.getText().toString());
+                                editor.putString("beacon_spot", editText.getText().toString());
+                                editor.apply();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                builder.show();
+
+                return true;
+            }
+        });
+
+        View.OnClickListener onClickListenerCell1 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fc.toggle(false);
             }
         };
+        View.OnClickListener onClickListenerCell3 = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fc3.toggle(false);
+            }
+        };
 
-        birthLayout.setOnClickListener(onClickListener);
-        genderLayout.setOnClickListener(onClickListener);
-        bloodTypeLayout.setOnClickListener(onClickListener);
-        diseaseLayout.setOnClickListener(onClickListener);
+        birthLayout.setOnClickListener(onClickListenerCell1);
+        genderLayout.setOnClickListener(onClickListenerCell1);
+        bloodTypeLayout.setOnClickListener(onClickListenerCell1);
+        diseaseLayout.setOnClickListener(onClickListenerCell1);
+        beaconLocationLayout.setOnClickListener(onClickListenerCell3);
 
         adapter = new FallingRecordListViewAdapter();
         loadListItem();
@@ -496,6 +540,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
 
             return true;
         }
