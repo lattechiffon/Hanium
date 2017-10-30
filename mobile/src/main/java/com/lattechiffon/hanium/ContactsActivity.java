@@ -217,7 +217,9 @@ public class ContactsActivity extends AppCompatActivity {
      * @return 주소록에 저장된 모든 연락처 정보 (구분 ID, 이름, 전하번호)
      */
     private JSONObject getContactsList() {
-        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME }, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
+        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
+                new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME }, null, null,
+                ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
         int resultCount = cursor != null ? cursor.getCount() : 0;
 
         if (resultCount == 0) {
@@ -233,7 +235,9 @@ public class ContactsActivity extends AppCompatActivity {
                 String contactsId = cursor.getString(0);
                 Cursor phoneCursor;
 
-                phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER}, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactsId, null, null);
+                phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactsId, null, null);
 
                 while (phoneCursor != null && phoneCursor.moveToNext()) {
                     JSONObject jsonDataObject = new JSONObject();

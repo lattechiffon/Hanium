@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lattechiffon.hanium">
 
-    <permisison
+    <permission
         android:name="com.lattechiffon.hanium.locationapi.maps.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
