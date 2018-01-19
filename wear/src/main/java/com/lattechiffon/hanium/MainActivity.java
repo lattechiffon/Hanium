@@ -27,6 +27,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private GoogleApiClient googleApiClient;
     private Vibrator vibrator;
+    private Intent intentFalling;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
@@ -48,6 +49,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         pref = getSharedPreferences("EmergencyData", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
+        intentFalling = getIntent();
+
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -59,6 +62,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 textView = (TextView) stub.findViewById(R.id.text);
+
+                if (intentFalling.getBooleanExtra("falling", false)) {
+                    stub.callOnClick();
+                }
             }
         });
         stub.setOnClickListener(new View.OnClickListener() {

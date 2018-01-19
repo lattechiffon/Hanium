@@ -3,6 +3,7 @@
     <!-- 기본 -->
 
     <string name="app_name">WatchMe</string>
+    <string name="app_version_code">1</string>
     <string name="toast_exit">Press one more time to exit the app.</string>
 
     <string name="activity_main_recent_data">Recent Fall Detection Record</string>
@@ -140,6 +141,7 @@
 
     <string name="pref_header_information">Information</string>
     <string name="pref_app_version">App Version</string>
+    <string name="pref_app_version_summary">v 0.1</string>
     <string name="pref_developer">Develop</string>
     <string name="pref_developer_summary">doIT (Dept. of Computer Engineering, Sejong Univ.)</string>
     <string name="pref_mentor">Mentor</string>

@@ -13,10 +13,6 @@
     </Preference>
 
     <Preference
-        android:title="@string/pref_mentor"
-        android:summary="@string/pref_mentor_summary" />
-
-    <Preference
         android:title="@string/pref_project" />
 
     <Preference

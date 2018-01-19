@@ -16,10 +16,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided 'com.google.android.wearable:wearable:2.0.3'
     compile 'com.google.android.support:wearable:2.0.3'
     compile 'com.google.android.gms:play-services-wearable:10.0.1'
 
